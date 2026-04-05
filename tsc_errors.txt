@@ -1,0 +1,86 @@
+﻿node.exe : (node:18104) 
+ExperimentalWarning: CommonJS 
+module C:\Program Files\nodejs\nod
+e_modules\npm\node_modules\debug\s
+rc\node.js is loading ES Module 
+C:\Program Files\nodejs\node_modul
+es\npm\node_modules\supports-color
+\index.js using require().
+At C:\Program 
+Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : Not 
+   Specified: ((node:18104) Ex..  
+  .sing require().:String) [],    
+ RemoteException
+    + FullyQualifiedErrorId : Nat 
+   iveCommandError
+ 
+Support for loading ES Module in 
+require() is an experimental 
+feature and might change at any 
+time
+(Use `node --trace-warnings ...` 
+to show where the warning was 
+created)
+next.config.ts(4,3): error TS2353: Object literal may only specify known properties, and 'eslint' does not exist in type 'NextConfig'.
+src/dashboard_components/community/Community.tsx(10,21): error TS7031: Binding element 'enabled' implicitly has an 'any' type.
+src/dashboard_components/community/Community.tsx(10,30): error TS7031: Binding element 'setEnabled' implicitly has an 'any' type.
+src/dashboard_components/course_visibility/CourseVisibility.tsx(24,35): error TS7006: Parameter 'key' implicitly has an 'any' type.
+src/dashboard_components/course_visibility/CourseVisibility.tsx(25,49): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ public: boolean; unlisted: boolean; private: boolean; tokenGated: boolean; scheduled: boolean; }'.
+src/dashboard_components/course_visibility/CourseVisibility.tsx(29,32): error TS7006: Parameter 'key' implicitly has an 'any' type.
+src/dashboard_components/course_visibility/CourseVisibility.tsx(30,46): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ public: boolean; tokenHolder: boolean; guest: boolean; }'.
+src/dashboard_components/course_visibility/CourseVisibility.tsx(36,7): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
+  No index signature with a parameter of type 'string' was found on type '{}'.
+src/dashboard_components/course_visibility/CourseVisibility.tsx(41,7): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
+  No index signature with a parameter of type 'string' was found on type '{}'.
+src/dashboard_components/course_visibility/CourseVisibility.tsx(45,19): error TS2345: Argument of type '{}' is not assignable to parameter of type 'SetStateAction<{ public: boolean; unlisted: boolean; private: boolean; tokenGated: boolean; scheduled: boolean; }>'.
+src/dashboard_components/course_visibility/CourseVisibility.tsx(46,16): error TS2345: Argument of type '{}' is not assignable to parameter of type 'SetStateAction<{ public: boolean; tokenHolder: boolean; guest: boolean; }>'.
+src/dashboard_components/course_visibility/CourseVisibility.tsx(82,26): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ public: boolean; unlisted: boolean; private: boolean; tokenGated: boolean; scheduled: boolean; }'.
+  No index signature with a parameter of type 'string' was found on type '{ public: boolean; unlisted: boolean; private: boolean; tokenGated: boolean; scheduled: boolean; }'.
+src/dashboard_components/pricing/Pricing.tsx(80,33): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/dashboard_components/pricing/Pricing.tsx(85,29): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/dashboard_components/pricing/Pricing.tsx(92,52): error TS2339: Property 'value' does not exist on type 'never'.
+src/dashboard_components/pricing/Pricing.tsx(242,30): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ DAO: boolean; Beginner: boolean; Web3Basics: boolean; Governance: boolean; }'.
+  No index signature with a parameter of type 'string' was found on type '{ DAO: boolean; Beginner: boolean; Web3Basics: boolean; Governance: boolean; }'.
+src/dashboard_components/pricing/Pricing.tsx(244,62): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ DAO: boolean; Beginner: boolean; Web3Basics: boolean; Governance: boolean; }'.
+  No index signature with a parameter of type 'string' was found on type '{ DAO: boolean; Beginner: boolean; Web3Basics: boolean; Governance: boolean; }'.
+src/dashboard_components/pricing/Pricing.tsx(263,34): error TS18047: 'fileInputRef.current' is possibly 'null'.
+src/dashboard_components/pricing/Pricing.tsx(269,32): error TS2339: Property 'name' does not exist on type 'never'.
+src/dashboard_components/pricing/Pricing.tsx(291,32): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ Free: boolean; Paid: boolean; TokenGated: boolean; }'.
+  No index signature with a parameter of type 'string' was found on type '{ Free: boolean; Paid: boolean; TokenGated: boolean; }'.
+src/dashboard_components/pricing/Pricing.tsx(295,36): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ Free: boolean; Paid: boolean; TokenGated: boolean; }'.
+  No index signature with a parameter of type 'string' was found on type '{ Free: boolean; Paid: boolean; TokenGated: boolean; }'.
+src/dashboard_components/publish_course/PublishCourse.tsx(452,54): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ original: boolean; terms: boolean; reviewed: boolean; }'.
+  No index signature with a parameter of type 'string' was found on type '{ original: boolean; terms: boolean; reviewed: boolean; }'.
+src/dashboard_components/publish_course/PublishCourse.tsx(457,19): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ original: boolean; terms: boolean; reviewed: boolean; }'.
+  No index signature with a parameter of type 'string' was found on type '{ original: boolean; terms: boolean; reviewed: boolean; }'.
+src/dashboard_components/publish_course/PublishCourse.tsx(462,18): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ original: boolean; terms: boolean; reviewed: boolean; }'.
+  No index signature with a parameter of type 'string' was found on type '{ original: boolean; terms: boolean; reviewed: boolean; }'.
+src/dashboard_components/quiz_assessment/QuizAssessment.tsx(88,27): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/dashboard_components/quiz_assessment/QuizAssessment.tsx(144,54): error TS2339: Property 'options' does not exist on type '{ id: number; label: string; question: string; type: string; options: string[]; } | { id: number; label: string; question: string; type: string; options?: undefined; } | { id: number; label: string; question: string; type: string; placeholder: string; }'.
+  Property 'options' does not exist on type '{ id: number; label: string; question: string; type: string; placeholder: string; }'.
+src/dashboard_components/quiz_assessment/QuizAssessment.tsx(144,67): error TS7006: Parameter 'option' implicitly has an 'any' type.
+src/dashboard_components/quiz_assessment/QuizAssessment.tsx(144,75): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/dashboard_components/quiz_assessment/QuizAssessment.tsx(149,23): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
+  No index signature with a parameter of type 'number' was found on type '{}'.
+src/dashboard_components/quiz_assessment/QuizAssessment.tsx(155,22): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
+  No index signature with a parameter of type 'number' was found on type '{}'.
+src/dashboard_components/quiz_assessment/QuizAssessment.tsx(163,68): error TS2339: Property 'placeholder' does not exist on type '{ id: number; label: string; question: string; type: string; options: string[]; } | { id: number; label: string; question: string; type: string; options?: undefined; } | { id: number; label: string; question: string; type: string; placeholder: string; }'.
+  Property 'placeholder' does not exist on type '{ id: number; label: string; question: string; type: string; options: string[]; }'.
+src/dashboard_components/quiz_assessment/QuizAssessment.tsx(164,26): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
+  No index signature with a parameter of type 'number' was found on type '{}'.
+src/dashboard_components/quiz_assessment/QuizAssessment.tsx(209,24): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
+  No index signature with a parameter of type 'number' was found on type '{}'.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(34,24): error TS7006: Parameter 'year' implicitly has an 'any' type.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(34,30): error TS7006: Parameter 'month' implicitly has an 'any' type.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(35,28): error TS7006: Parameter 'year' implicitly has an 'any' type.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(35,34): error TS7006: Parameter 'month' implicitly has an 'any' type.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(40,28): error TS7006: Parameter 'day' implicitly has an 'any' type.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(42,25): error TS2345: Argument of type 'Date' is not assignable to parameter of type 'SetStateAction<null>'.
+  Type 'Date' provides no match for the signature '(prevState: null): null'.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(48,10): error TS2339: Property 'toLocaleDateString' does not exist on type 'never'.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(68,27): error TS2339: Property 'getDate' does not exist on type 'never'.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(69,27): error TS2339: Property 'getMonth' does not exist on type 'never'.
+src/dashboard_components/schedule_session/ScheduleSession.tsx(166,26): error TS2339: Property 'toLocaleDateString' does not exist on type 'never'.

@@ -1,0 +1,15 @@
+export { default as Sidebar } from "./sidebar/Sidebar";
+export { default as Header } from "./header/Header";
+export { default as Selection } from "./selection/Selection";
+export { default as Profile } from "./profile/Profile";
+export { default as MyCourses } from "./my_courses/MyCourses";
+export { default as UploadCourses } from "./upload_courses/UploadCourses";
+export { default as QuizAssessment } from "./quiz_assessment/QuizAssessment";
+export { default as Community } from "./community/Community";
+export { default as ScheduleSession } from "./schedule_session/ScheduleSession";
+export { default as Pricing } from "./pricing/Pricing";
+export { default as CourseVisibility } from "./course_visibility/CourseVisibility";
+export { default as PublishCourse } from "./publish_course/PublishCourse";
+export { default as CourseProgress } from "./account/CourseProgress";
+export { default as Earnings } from "./account/Earnings";
+export { default as ResetPassword } from "./account/ResetPassword";

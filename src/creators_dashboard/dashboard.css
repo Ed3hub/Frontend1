@@ -1,0 +1,95 @@
+.dashboard {
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  background: white;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+    "head"
+    "section"
+    "main";
+}
+
+@media (min-width: 768px) {
+  .dashboard {
+    grid-template-columns: 250px 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "side head"
+      "side main";
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard {
+    grid-template-columns: 250px 300px 1fr;
+    grid-template-areas:
+      "side head head"
+      "side section main";
+  }
+}
+.head {
+  grid-area: head;
+  border-bottom: 1px solid #8f8f8f;
+}
+.side {
+  grid-area: side;
+  border: 1px solid #8f8f8f;
+  overflow: hidden;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .side {
+    display: block;
+  }
+}
+.section {
+  grid-area: section;
+  padding: 10px;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: 20px;
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    display: block;
+  }
+}
+.main {
+  grid-area: main;
+  overflow-y: auto;
+  /* padding: 10px; */
+}
+
+@media (min-width: 768px) {
+  .main {
+    /* padding: 20px; */
+  }
+}
+
+.side.mobile-open {
+  display: block !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  z-index: 50;
+  background: white;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .side.mobile-open {
+    position: static;
+    box-shadow: none;
+  }
+}

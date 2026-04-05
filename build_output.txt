@@ -1,0 +1,107 @@
+﻿
+> ed3hub-main@0.1.0 build
+> next build
+
+node.exe : 
+[baseline-browser-mapping] The 
+data in this module is over two 
+months old.  To ensure accurate 
+Baseline data, please update: 
+`npm i 
+baseline-browser-mapping@latest 
+-D`
+At C:\Program 
+Files\nodejs\npm.ps1:29 char:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : Not 
+   Specified: ([baseline-brows..  
+  .ping@latest -D`:String) [],    
+ RemoteException
+    + FullyQualifiedErrorId : Nat 
+   iveCommandError
+ 
+   Γû▓ Next.js 16.0.7 (Turbopack)
+
+   Creating an optimized production build ...
+[baseline-browser-mapping] The 
+data in this module is over two 
+months old.  To ensure accurate 
+Baseline data, please update: 
+`npm i 
+baseline-browser-mapping@latest 
+-D`
+ Γ£ô Compiled successfully in 15.6s
+   Skipping validation of types
+   Collecting page data using 3 workers ...
+[baseline-browser-mapping] The 
+data in this module is over two 
+months old.  To ensure accurate 
+Baseline data, please update: 
+`npm i 
+baseline-browser-mapping@latest 
+-D`
+[baseline-browser-mapping] The 
+data in this module is over two 
+months old.  To ensure accurate 
+Baseline data, please update: 
+`npm i 
+baseline-browser-mapping@latest 
+-D`
+[baseline-browser-mapping] The 
+data in this module is over two 
+months old.  To ensure accurate 
+Baseline data, please update: 
+`npm i 
+baseline-browser-mapping@latest 
+-D`
+   Generating static pages using 3 workers (0/26) ...
+[baseline-browser-mapping] The 
+data in this module is over two 
+months old.  To ensure accurate 
+Baseline data, please update: 
+`npm i 
+baseline-browser-mapping@latest 
+-D`
+[baseline-browser-mapping] The 
+data in this module is over two 
+months old.  To ensure accurate 
+Baseline data, please update: 
+`npm i 
+baseline-browser-mapping@latest 
+-D`
+   Generating static pages using 3 workers (6/26) 
+   Generating static pages using 3 workers (12/26) 
+   Generating static pages using 3 workers (19/26) 
+ Γ£ô Generating static pages using 3 workers (26/26) in 3.6s
+   Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ Γùï /community
+Γö£ Γùï /courses
+Γö£ Γùï /dashboard
+Γö£ Γùï /home
+Γö£ Γùï /home/ongoing
+Γö£ Γùï /privacy-policy
+Γö£ Γùï /reset-password
+Γö£ Γùï /sign-in
+Γö£ Γùï /sign-up
+Γö£ Γùï /terms-and-condition
+Γö£ Γùï /tutors
+Γö£ Γùï /tutors/barack-jethro
+Γö£ Γùï /tutors/raphael-coasta
+Γö£ Γùï /tutors/raphael-coasta/chat
+Γö£ Γùï /tutors/sandra-jones
+Γö£ Γùï /tutors/sandra-jones/chat
+Γö£ Γùï /tutors/scott-daniel
+Γö£ Γùï /tutors/scott-daniel/chat
+Γö£ Γùï /tutors/tom-haniel
+Γö£ Γùï /tutors/tom-haniel/chat
+Γö£ Γùï /tutors/tori-simone
+Γöö Γùï /tutors/tori-simone/chat
+
+
+Γùï  (Static)  prerendered as static content
+
