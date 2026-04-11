@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { getAccess, getRefresh, setTokens, clearTokens } from './auth';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
 const api = axios.create({
-  baseURL: `${BASE_URL}/api`,
+  // baseURL: 'http://localhost:8000/api', //local machine of the backend
+  baseURL: 'https://dev-api.ed3hub.com/api',
+
 });
 
 api.interceptors.request.use((config) => {
@@ -26,7 +26,7 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
       try {
-        const { data } = await axios.post(`${BASE_URL}/api/auth/token/refresh/`, { refresh });
+        const { data } = await axios.post('https://dev-api.ed3hub.com/api/auth/token/refresh/', { refresh });
         setTokens(data.access, refresh);
         original.headers.Authorization = `Bearer ${data.access}`;
         return api(original);
