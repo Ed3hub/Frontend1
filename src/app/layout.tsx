@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script src="https://js.paystack.co/v1/inline.js" />
+        <script src="https://js.paystack.co/v1/inline.js"></script>
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
