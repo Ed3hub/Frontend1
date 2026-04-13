@@ -14,14 +14,6 @@ export default function SignUp() {
   const router = useRouter();
   const { register, googleAuth, user, loading: authLoading } = useAuth();
 
-  React.useEffect(() => {
-    if (!authLoading && user) {
-      router.replace(user.role === 'educator' ? '/dashboard' : '/learner-dashboard');
-    }
-  }, [user, authLoading, router]);
-
-  if (authLoading || user) return null;
-
   const [username, setUsername] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -30,11 +22,27 @@ export default function SignUp() {
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
-  // Google OAuth role picker state
   const [showRolePicker, setShowRolePicker] = React.useState(false);
   const [googleToken, setGoogleToken] = React.useState("");
   const [googleRole, setGoogleRole] = React.useState("learner");
   const [googleLoading, setGoogleLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!authLoading && user) {
+      router.replace(user.role === 'educator' ? '/dashboard' : '/learner-dashboard');
+    }
+  }, [user, authLoading, router]);
+
+  const handleGoogleSignUp = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setError('');
+      setGoogleToken(tokenResponse.access_token);
+      setShowRolePicker(true);
+    },
+    onError: () => setError('Google sign-up failed. Please try again.'),
+  });
+
+  if (authLoading || user) return null;
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,16 +65,6 @@ export default function SignUp() {
       setLoading(false);
     }
   };
-
-  const handleGoogleSignUp = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setError('');
-      setGoogleToken(tokenResponse.access_token);
-      // Don't call backend yet — just show the role picker
-      setShowRolePicker(true);
-    },
-    onError: () => setError('Google sign-up failed. Please try again.'),
-  });
 
   const handleConfirmGoogleRole = async () => {
     setGoogleLoading(true);
