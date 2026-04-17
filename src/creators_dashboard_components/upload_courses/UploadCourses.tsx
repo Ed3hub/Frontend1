@@ -480,7 +480,15 @@ const UploadCourses: React.FC<UploadCoursesProps> = ({ editCourse, onSaved }) =>
         is_self_paced: editCourse.is_self_paced ?? true,
       }));
       if (editCourse.thumbnail) setThumbnailPreview(editCourse.thumbnail);
-      
+
+      // Restore duration display
+      const weeks = editCourse.duration_weeks ?? 0;
+      const type = editCourse.is_self_paced ? 'Self-paced' : 'Scheduled';
+      if (weeks > 0) {
+        setScheduleType(type);
+        setFinalDurationDisplay(`${weeks} week${weeks !== 1 ? 's' : ''} (${type})`);
+      }
+
       // Load existing modules
       loadCourseModules(editCourse.id);
     }
