@@ -75,7 +75,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       const refresh = localStorage.getItem('refresh_token');
-      await api.post('/auth/logout/', { refresh });
+      if (refresh) {
+        await api.post('/auth/logout/', { refresh });
+      }
+    } catch (error) {
+      // Ignore errors - token might be expired/invalid
     } finally {
       clearTokens();
       setUser(null);

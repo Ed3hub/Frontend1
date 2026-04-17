@@ -8,9 +8,9 @@ interface Lesson {
   title: string;
   type: 'video' | 'text' | 'document';
   content?: string;
-  videoUrl?: string;
+  videoFile?: File | null;
+  videoUrl?: string;       // existing uploaded URL (edit mode)
   duration?: string;
-  file?: File;
 }
 
 interface Quiz {
@@ -106,7 +106,6 @@ const ModuleModal: React.FC<ModuleModalProps> = ({ isOpen, onClose, onAdd, onEdi
 
   const handleSubmit = () => {
     if (!moduleTitle.trim()) return;
-    
     const module: Module = {
       id: editModule?.id || Date.now().toString(),
       title: moduleTitle,
@@ -114,21 +113,11 @@ const ModuleModal: React.FC<ModuleModalProps> = ({ isOpen, onClose, onAdd, onEdi
       quizzes,
       assessments,
     };
-    
-    console.log('=== MODULE SUBMIT ===');
-    console.log('Module data:', module);
-    console.log('Lessons:', lessons.length);
-    console.log('Quizzes:', quizzes.length);
-    console.log('Assessments:', assessments.length);
-    
     if (editModule && onEdit) {
-      console.log('Editing existing module');
       onEdit(module);
     } else {
-      console.log('Adding new module');
       onAdd(module);
     }
-    
     setModuleTitle('');
     setLessons([]);
     setQuizzes([]);
@@ -216,12 +205,38 @@ const ModuleModal: React.FC<ModuleModalProps> = ({ isOpen, onClose, onAdd, onEdi
                   </div>
                   
                   {lesson.type === 'video' && (
-                    <input 
-                      className="w-full border border-gray-200 p-2 rounded text-sm outline-none focus:border-[#00AEEF]" 
-                      placeholder="Video URL or upload file..." 
-                      value={lesson.videoUrl || ''} 
-                      onChange={(e) => updateLesson(lesson.id, 'videoUrl', e.target.value)} 
-                    />
+                    <div className="space-y-2">
+                      {lesson.videoUrl && !lesson.videoFile && (
+                        <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded">
+                          <Video size={12} className="text-blue-400 shrink-0" />
+                          <span className="truncate">Current: {lesson.videoUrl.split('/').pop()}</span>
+                        </div>
+                      )}
+                      {lesson.videoFile && (
+                        <div className="flex items-center justify-between text-xs text-green-700 bg-green-50 px-3 py-2 rounded">
+                          <div className="flex items-center gap-2 truncate">
+                            <Video size={12} className="shrink-0" />
+                            <span className="truncate">{lesson.videoFile.name}</span>
+                          </div>
+                          <button type="button" onClick={() => updateLesson(lesson.id, 'videoFile', null)} className="text-red-400 hover:text-red-600 shrink-0 ml-2">
+                            <X size={14} />
+                          </button>
+                        </div>
+                      )}
+                      <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-200 rounded-lg py-3 cursor-pointer hover:border-[#00AEEF] hover:bg-blue-50 transition-colors text-sm text-gray-500">
+                        <Video size={16} className="text-[#00AEEF]" />
+                        {lesson.videoFile ? 'Change video file' : lesson.videoUrl ? 'Replace video' : 'Upload video file'}
+                        <input
+                          type="file"
+                          accept="video/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) updateLesson(lesson.id, 'videoFile', f);
+                          }}
+                        />
+                      </label>
+                    </div>
                   )}
                   
                   {lesson.type === 'text' && (
@@ -485,7 +500,7 @@ const UploadCourses: React.FC<UploadCoursesProps> = ({ editCourse, onSaved }) =>
           title: lesson.title,
           type: lesson.lesson_type === 'reading' ? 'text' : lesson.lesson_type,
           content: lesson.content,
-          videoUrl: lesson.video_url,
+          videoUrl: lesson.video_url,  // computed absolute URL from serializer
           duration: lesson.duration_minutes ? `${lesson.duration_minutes} min` : '',
         })),
         quizzes: mod.quiz?.questions?.map((q: any) => ({
@@ -550,12 +565,6 @@ const UploadCourses: React.FC<UploadCoursesProps> = ({ editCourse, onSaved }) =>
 
   const handleSave = async () => {
     if (!form.title.trim()) { setErrorMsg('Course title is required.'); setStatus('error'); return; }
-    
-    console.log('=== SAVING COURSE ===');
-    console.log('Modules to save:', modules);
-    console.log('Modules count:', modules.length);
-    console.log('Modules JSON:', JSON.stringify(modules));
-    
     setSaving(true);
     setStatus('idle');
     setErrorMsg('');
@@ -575,36 +584,52 @@ const UploadCourses: React.FC<UploadCoursesProps> = ({ editCourse, onSaved }) =>
       fd.append('ideal_for', form.ideal_for);
       fd.append('what_included', form.what_included);
       fd.append('what_you_learn', form.what_you_learn);
-      
-      // Add modules as JSON string
-      const modulesJson = JSON.stringify(modules);
-      console.log('Appending modules to FormData:', modulesJson);
-      fd.append('modules', modulesJson);
-      
+      fd.append('modules', JSON.stringify(modules));
       if (thumbnail) fd.append('thumbnail', thumbnail);
-
-      console.log('FormData entries:');
-      for (let pair of fd.entries()) {
-        console.log(pair[0], ':', pair[1]);
-      }
 
       let response;
       if (isEdit) {
-        console.log('Updating course:', editCourse!.id);
         response = await api.patch(`/courses/${editCourse!.id}/update/`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       } else {
-        console.log('Creating new course');
         response = await api.post('/courses/create/', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       }
-      
-      console.log('Response:', response.data);
+
+      // Upload video files for lessons that have a new file attached
+      const savedCourseId = response.data.id;
+      const contentRes = await api.get(`/courses/${savedCourseId}/content/`);
+      const savedModules = contentRes.data.modules;
+
+      for (let mIdx = 0; mIdx < modules.length; mIdx++) {
+        const frontendModule = modules[mIdx];
+        const backendModule = savedModules[mIdx];
+        if (!backendModule) continue;
+
+        for (let lIdx = 0; lIdx < frontendModule.lessons.length; lIdx++) {
+          const lesson = frontendModule.lessons[lIdx];
+          const backendLesson = backendModule.lessons[lIdx];
+          if (!backendLesson || !lesson.videoFile) continue;
+
+          const videoFd = new FormData();
+          videoFd.append('video_file', lesson.videoFile);
+          try {
+            await api.patch(`/courses/lessons/${backendLesson.id}/`, videoFd, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+          } catch (videoErr: any) {
+            // Video upload failed — course was saved, just warn
+            console.warn(`Video upload failed for lesson "${lesson.title}":`, videoErr?.response?.data);
+          }
+        }
+      }
+
       setStatus('success');
       setTimeout(() => { setStatus('idle'); onSaved?.(); }, 2000);
     } catch (err: any) {
-      console.error('Save error:', err);
-      console.error('Error response:', err?.response?.data);
       const data = err?.response?.data;
-      setErrorMsg(data ? JSON.stringify(data) : 'Failed to save course.');
+      const msg = data
+        ? Object.values(data).flat().join(' ')
+        : err?.message || 'Failed to save course.';
+      setErrorMsg(msg);
       setStatus('error');
     } finally {
       setSaving(false);
@@ -623,20 +648,11 @@ const UploadCourses: React.FC<UploadCoursesProps> = ({ editCourse, onSaved }) =>
   };
 
   const handleAddModule = (module: Module) => {
-    console.log('=== ADDING MODULE TO STATE ===');
-    console.log('Current modules:', modules.length);
-    console.log('New module:', module);
-    const updatedModules = [...modules, module];
-    console.log('Updated modules count:', updatedModules.length);
-    setModules(updatedModules);
+    setModules([...modules, module]);
   };
 
   const handleUpdateModule = (updatedModule: Module) => {
-    console.log('=== UPDATING MODULE IN STATE ===');
-    console.log('Module ID:', updatedModule.id);
-    const updatedModules = modules.map(m => m.id === updatedModule.id ? updatedModule : m);
-    console.log('Updated modules count:', updatedModules.length);
-    setModules(updatedModules);
+    setModules(modules.map(m => m.id === updatedModule.id ? updatedModule : m));
   };
 
   const getTotalLessons = () => modules.reduce((sum, m) => sum + m.lessons.length, 0);
