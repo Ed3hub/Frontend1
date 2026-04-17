@@ -1,8 +1,8 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   ChevronLeft, ChevronDown, ChevronUp, CheckCircle2,
-  PlayCircle, FileText, ClipboardList, Lock, Loader2,
+  PlayCircle, FileText, ClipboardList, Lock, Loader2, Clock,
 } from 'lucide-react';
 import api from '@/lib/api';
 
@@ -12,7 +12,7 @@ interface Lesson {
   lesson_type: 'video' | 'reading' | 'quiz' | 'assignment';
   duration_minutes: number;
   is_free_preview: boolean;
-  video_url?: string;
+  video_url?: string | null;
   content?: string;
 }
 
@@ -38,6 +38,7 @@ interface CourseData {
 interface CourseLearningProps {
   setActivePage: (page: string) => void;
   course: { title: string; instructor: string; img: string; slug?: string; courseId?: number } | null;
+  initialLessonId?: number | null;
 }
 
 const LESSON_ICONS = {
@@ -47,7 +48,7 @@ const LESSON_ICONS = {
   assignment: <ClipboardList className="w-4 h-4" />,
 };
 
-export default function CourseLearning({ setActivePage, course }: CourseLearningProps) {
+export default function CourseLearning({ setActivePage, course, initialLessonId }: CourseLearningProps) {
   const [courseData, setCourseData] = useState<CourseData | null>(null);
   const [progress, setProgress] = useState<LessonProgress[]>([]);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
@@ -58,6 +59,56 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
   const [marking, setMarking] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Video watch tracking via native <video> events
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const watchedRef = useRef(0);           // seconds actually watched (deduplicated)
+  const lastTimeRef = useRef<number>(0);  // last timeupdate position
+  const [watchedSeconds, setWatchedSeconds] = useState(0);
+  const autoMarkedRef = useRef(false);    // prevent double-marking
+
+  const requiredSeconds = activeLesson?.lesson_type === 'video'
+    ? (activeLesson.duration_minutes * 60)
+    : 0;
+  const watchPct = requiredSeconds > 0
+    ? Math.min((watchedSeconds / requiredSeconds) * 100, 100)
+    : 0;
+
+  // Reset watch state whenever lesson changes
+  useEffect(() => {
+    watchedRef.current = 0;
+    lastTimeRef.current = 0;
+    autoMarkedRef.current = false;
+    setWatchedSeconds(0);
+  }, [activeLessonId]);
+
+  const handleTimeUpdate = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const current = video.currentTime;
+    const delta = current - lastTimeRef.current;
+    // Only count forward progress ≤ 2 s (ignore seeks)
+    if (delta > 0 && delta <= 2) {
+      watchedRef.current += delta;
+      setWatchedSeconds(Math.floor(watchedRef.current));
+    }
+    lastTimeRef.current = current;
+  }, []);
+
+  // Auto-mark complete when enough watch time accumulated
+  useEffect(() => {
+    if (
+      requiredSeconds > 0 &&
+      watchedSeconds >= requiredSeconds &&
+      activeLesson &&
+      !isCompleted(activeLesson.id) &&
+      !autoMarkedRef.current &&
+      !marking
+    ) {
+      autoMarkedRef.current = true;
+      markComplete();
+    }
+  }, [watchedSeconds]);
+
   useEffect(() => {
     if (!course?.slug) { setLoading(false); return; }
     Promise.all([
@@ -66,17 +117,16 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
     ]).then(([courseRes, enrollRes]) => {
       const data: CourseData = courseRes.data;
       setCourseData(data);
-
-      // get lesson progress from enrollment
       const enr = enrollRes.data.find(
         (e: { course: { slug: string }; lesson_progress: LessonProgress[] }) =>
           e.course.slug === course.slug
       );
       if (enr?.lesson_progress) setProgress(enr.lesson_progress);
-
-      // auto-select first lesson
-      const firstLesson = data.modules?.[0]?.lessons?.[0];
-      if (firstLesson) selectLesson(firstLesson);
+      // auto-select initialLessonId if provided, otherwise first lesson
+      const target = initialLessonId
+        ? data.modules.flatMap((m: Module) => m.lessons).find((l: Lesson) => l.id === initialLessonId)
+        : data.modules?.[0]?.lessons?.[0];
+      if (target) selectLesson(target);
     }).catch(() => {})
       .finally(() => setLoading(false));
   }, [course?.slug]);
@@ -103,10 +153,8 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
         if (exists) return prev.map((p) => p.lesson === activeLesson.id ? { ...p, completed: true } : p);
         return [...prev, { lesson: activeLesson.id, completed: true }];
       });
-      // auto-advance to next lesson
       goNext();
     } catch {
-      // already completed is fine
       goNext();
     } finally {
       setMarking(false);
@@ -132,6 +180,8 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
   const totalLessons = allLessons.length;
   const progressPct = totalLessons ? Math.round((completedCount / totalLessons) * 100) : 0;
 
+  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -139,6 +189,9 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
       </div>
     );
   }
+
+  const isVideoLesson = activeLesson?.lesson_type === 'video';
+  const alreadyCompleted = activeLesson ? isCompleted(activeLesson.id) : false;
 
   return (
     <div className="flex h-[calc(100vh-64px)] bg-white overflow-hidden">
@@ -216,7 +269,6 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
           <button
             onClick={() => setSidebarOpen((v) => !v)}
             className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-            title="Toggle sidebar"
           >
             <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -234,23 +286,57 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
             </div>
           ) : activeLesson ? (
             <div>
-              {/* Video */}
-              {activeLesson.lesson_type === 'video' && activeLesson.video_url && (
-                <div className="w-full bg-black aspect-video">
-                  <iframe
-                    src={activeLesson.video_url.replace('watch?v=', 'embed/')}
-                    className="w-full h-full"
-                    allowFullScreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  />
-                </div>
-              )}
-              {activeLesson.lesson_type === 'video' && !activeLesson.video_url && (
-                <div className="w-full bg-gray-900 aspect-video flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <PlayCircle className="w-16 h-16 mx-auto mb-3 opacity-40" />
-                    <p className="text-sm opacity-60">Video not available yet</p>
-                  </div>
+              {/* Video player */}
+              {isVideoLesson && (
+                <div className="relative w-full bg-black aspect-video">
+                  {activeLesson.video_url ? (
+                    <video
+                      key={activeLesson.id}
+                      ref={videoRef}
+                      src={activeLesson.video_url}
+                      controls
+                      controlsList="nodownload"
+                      className="w-full h-full"
+                      onTimeUpdate={handleTimeUpdate}
+                      onSeeked={() => { lastTimeRef.current = videoRef.current?.currentTime ?? 0; }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <PlayCircle className="w-16 h-16 mx-auto mb-3 opacity-40" />
+                        <p className="text-sm opacity-60">Video not available yet</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Watch progress bar overlay */}
+                  {!alreadyCompleted && activeLesson.video_url && requiredSeconds > 0 && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-4 py-2 pointer-events-none">
+                      <div className="flex items-center justify-between text-white text-xs mb-1">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" />
+                          {marking ? (
+                            <span className="text-green-400 font-semibold flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Marking complete...
+                            </span>
+                          ) : watchedSeconds >= requiredSeconds ? (
+                            <span className="text-green-400 font-semibold flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Completed!
+                            </span>
+                          ) : (
+                            <span>Watched: {fmt(watchedSeconds)} / {fmt(requiredSeconds)}</span>
+                          )}
+                        </div>
+                        <span>{Math.round(watchPct)}%</span>
+                      </div>
+                      <div className="w-full bg-white/20 rounded-full h-1">
+                        <div
+                          className={`h-1 rounded-full transition-all ${watchedSeconds >= requiredSeconds ? 'bg-green-400' : 'bg-blue-400'}`}
+                          style={{ width: `${watchPct}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -261,9 +347,16 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
                     {activeLesson.lesson_type}
                   </span>
                   <span className="text-xs text-gray-400">{activeLesson.duration_minutes} min</span>
-                  {isCompleted(activeLesson.id) && (
+                  {alreadyCompleted && (
                     <span className="text-xs px-2 py-0.5 bg-green-50 text-green-600 rounded-full font-medium flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" /> Completed
+                    </span>
+                  )}
+                  {/* Show watch progress inline for video lessons */}
+                  {isVideoLesson && !alreadyCompleted && activeLesson.video_url && requiredSeconds > 0 && (
+                    <span className="text-xs text-gray-400 flex items-center gap-1 ml-auto">
+                      <Clock className="w-3 h-3" />
+                      Watch {fmt(requiredSeconds)} to complete
                     </span>
                   )}
                 </div>
@@ -289,7 +382,26 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
                     <ChevronLeft className="w-4 h-4" /> Previous
                   </button>
 
-                  {!isCompleted(activeLesson.id) ? (
+                  {alreadyCompleted ? (
+                    <button
+                      onClick={goNext}
+                      disabled={currentIndex === allLessons.length - 1}
+                      className="flex items-center gap-2 px-6 py-2.5 bg-green-500 text-white rounded-xl text-sm font-semibold hover:bg-green-600 disabled:opacity-40 transition-colors"
+                    >
+                      Next Lesson <ChevronLeft className="w-4 h-4 rotate-180" />
+                    </button>
+                  ) : isVideoLesson ? (
+                    // Video lesson — show watch progress, no manual button
+                    <div className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-500 rounded-xl text-sm">
+                      <Clock className="w-4 h-4" />
+                      {marking
+                        ? 'Marking complete...'
+                        : requiredSeconds > 0
+                          ? `${fmt(watchedSeconds)} / ${fmt(requiredSeconds)}`
+                          : 'Watch the video to complete'}
+                    </div>
+                  ) : (
+                    // Non-video — manual mark complete
                     <button
                       onClick={markComplete}
                       disabled={marking}
@@ -297,14 +409,6 @@ export default function CourseLearning({ setActivePage, course }: CourseLearning
                     >
                       {marking ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                       {marking ? 'Saving...' : 'Mark Complete & Next'}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={goNext}
-                      disabled={currentIndex === allLessons.length - 1}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-green-500 text-white rounded-xl text-sm font-semibold hover:bg-green-600 disabled:opacity-40 transition-colors"
-                    >
-                      Next Lesson <ChevronLeft className="w-4 h-4 rotate-180" />
                     </button>
                   )}
                 </div>

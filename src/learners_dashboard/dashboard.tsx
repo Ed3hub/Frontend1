@@ -25,6 +25,7 @@ export default function App() {
   } | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<{ title: string; instructor: string; img: string; slug?: string; price?: string; courseId?: number; showPurchaseModal?: boolean } | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<{ title: string; type: string; duration: string; completed: boolean } | null>(null);
+  const [selectedLessonId, setSelectedLessonId] = useState<number | null>(null);
 
   const renderPage = () => {
     switch(activePage) {
@@ -36,8 +37,8 @@ export default function App() {
       case 'chat': return <ChatPage tutor={selectedTutor} />;
       case 'ongoingCourses': return <OngoingCourses setActivePage={setActivePage} setSelectedCourse={setSelectedCourse} />;
       case 'recommendedCourses': return <RecommendedCourses setActivePage={setActivePage} setSelectedCourse={setSelectedCourse} />;
-      case 'courseDetails': return <CourseDetails setActivePage={setActivePage} course={selectedCourse} setSelectedCourse={setSelectedCourse} setSelectedLesson={setSelectedLesson} />;
-      case 'courseLearning': return <CourseLearning setActivePage={setActivePage} course={selectedCourse} />;
+      case 'courseDetails': return <CourseDetails setActivePage={setActivePage} course={selectedCourse} setSelectedCourse={setSelectedCourse} setSelectedLessonId={setSelectedLessonId} />;
+      case 'courseLearning': return <CourseLearning setActivePage={setActivePage} course={selectedCourse} initialLessonId={selectedLessonId} />;
       case 'courseLesson': return <CourseLesson setActivePage={setActivePage} course={selectedCourse} lesson={selectedLesson} />;
       case 'payment': return <CheckoutFlow setActivePage={setActivePage} setSelectedCourse={setSelectedCourse} course={selectedCourse} />;
       case 'subscription': return <SubscriptionPage setActivePage={setActivePage} />;

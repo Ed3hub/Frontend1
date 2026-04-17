@@ -43,7 +43,7 @@ interface Enrollment {
   id: number;
   completed: boolean;
   progress_percent: number;
-  certificate?: { cert_type: string } | null;
+  certificate_id?: string | null;
 }
 
 interface CourseDetail {
@@ -77,7 +77,7 @@ interface CourseDetailsProps {
   setActivePage: (page: string) => void;
   course: { title: string; instructor: string; img: string; slug?: string; price?: string; courseId?: number; showPurchaseModal?: boolean } | null;
   setSelectedCourse?: (course: { title: string; instructor: string; img: string; slug?: string; price?: string; courseId?: number }) => void;
-  setSelectedLesson?: (lesson: { title: string; type: string; duration: string; completed: boolean } | null) => void;
+  setSelectedLessonId?: (id: number) => void;
 }
 
 const FALLBACK = 'https://images.unsplash.com/photo-1605792657660-596af9009e82?w=800&h=400&fit=crop';
@@ -86,7 +86,7 @@ const SKILL_LABELS: Record<string, string> = {
   advanced: 'Advanced', all_levels: 'All Levels',
 };
 
-const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLesson }: CourseDetailsProps) => {
+const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLessonId }: CourseDetailsProps) => {
   const [detail, setDetail] = useState<CourseDetail | null>(null);
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -264,11 +264,11 @@ const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLe
           </div>
           {enrollment?.completed ? (
             <button
-              onClick={() => setCertModalOpen(true)}
+              onClick={() => enrollment.certificate_id ? window.open(`/certificate/${enrollment.certificate_id}`, '_blank') : setCertModalOpen(true)}
               className="px-6 py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-colors shadow-md shadow-green-200 flex items-center gap-2"
             >
               <Award className="w-4 h-4" />
-              {enrollment.certificate ? 'View Certificate' : 'Get Certificate'}
+              {enrollment.certificate_id ? 'View Certificate' : 'Get Certificate'}
             </button>
           ) : enrollment ? (
             <button
@@ -356,15 +356,8 @@ const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLe
                         key={lesson.id}
                         className="flex items-center justify-between px-5 py-3 hover:bg-gray-50 cursor-pointer transition-colors"
                         onClick={() => {
-                          if (setSelectedLesson) {
-                            setSelectedLesson({
-                              title: lesson.title,
-                              type: lesson.lesson_type,
-                              duration: `${lesson.duration_minutes} mins`,
-                              completed: false,
-                            });
-                          }
-                          setActivePage('courseLesson');
+                          setSelectedLessonId?.(lesson.id);
+                          setActivePage('courseLearning');
                         }}
                       >
                         <div className="flex items-center gap-3">

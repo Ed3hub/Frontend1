@@ -1,7 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import { Award, Hexagon, Download, X, CheckCircle2, Loader2 } from 'lucide-react';
+import { Award, Hexagon, Download, X, CheckCircle2, Loader2, Eye } from 'lucide-react';
 import api from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 interface CertificateModalProps {
   enrollmentId: number;
@@ -13,14 +14,18 @@ type CertType = 'standard' | 'nft';
 
 interface IssuedCert {
   id: number;
+  certificate_id: string;
   cert_type: CertType;
   pdf_url: string | null;
+  qr_code_url: string | null;
+  verify_url: string;
   nft_tx_hash: string;
   learner_name: string;
   issued_at: string;
 }
 
 const CertificateModal: React.FC<CertificateModalProps> = ({ enrollmentId, courseTitle, onClose }) => {
+  const router = useRouter();
   const [selected, setSelected] = useState<CertType | null>(null);
   const [loading, setLoading] = useState(false);
   const [issued, setIssued] = useState<IssuedCert | null>(null);
@@ -33,11 +38,31 @@ const CertificateModal: React.FC<CertificateModalProps> = ({ enrollmentId, cours
     try {
       const { data } = await api.post(`/courses/my/certificate/${enrollmentId}/`, { cert_type: selected });
       setIssued(data);
+      if (data.pdf_url) {
+        triggerDownload(data.pdf_url);
+      }
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } };
       setError(e.response?.data?.detail ?? 'Failed to issue certificate. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const triggerDownload = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `certificate-${enrollmentId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, '_blank');
     }
   };
 
@@ -155,13 +180,22 @@ const CertificateModal: React.FC<CertificateModalProps> = ({ enrollmentId, cours
 
             {issued.cert_type === 'standard' && (
               issued.pdf_url ? (
-                <a
-                  href={issued.pdf_url}
-                  download
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-[#00A6FB] text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors shadow-md shadow-blue-200"
-                >
-                  <Download className="w-4 h-4" /> Download Certificate
-                </a>
+                <div className="flex flex-col gap-3">
+                  {issued.certificate_id ? (
+                    <button
+                      onClick={() => { onClose(); window.open(`/certificate/${issued.certificate_id}`, '_blank'); }}
+                      className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-white border-2 border-[#00A6FB] text-[#00A6FB] font-semibold rounded-xl hover:bg-blue-50 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" /> View Certificate
+                    </button>
+                  ) : null}
+                  <button
+                    onClick={() => triggerDownload(issued.pdf_url!)}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#00A6FB] text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors shadow-md shadow-blue-200"
+                  >
+                    <Download className="w-4 h-4" /> Download Certificate
+                  </button>
+                </div>
               ) : (
                 <div className="px-6 py-4 bg-gray-50 rounded-xl text-sm text-gray-500">
                   Your certificate is being generated. Check back shortly or visit your profile to download it.

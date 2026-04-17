@@ -5,18 +5,22 @@ import api from '@/lib/api';
 
 interface Certificate {
   id: number;
+  certificate_id: string;
   cert_type: 'standard' | 'nft';
   issued_at: string;
   course_title: string;
   course_slug: string;
   learner_name: string;
+  instructor_name: string;
   pdf_url: string | null;
+  qr_code_url: string | null;
+  verify_url: string;
   nft_tx_hash: string;
 }
 
 interface CertificateViewProps {
   enrollmentId?: number;
-  certificateId?: number;
+  certificateId?: string;
 }
 
 const CertificateView: React.FC<CertificateViewProps> = ({ enrollmentId, certificateId }) => {
@@ -203,7 +207,7 @@ const CertificateView: React.FC<CertificateViewProps> = ({ enrollmentId, certifi
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-gray-500">Certificate ID</p>
-              <p className="font-semibold text-gray-800">#{certificate.id}</p>
+              <p className="font-semibold text-gray-800">{certificate.certificate_id}</p>
             </div>
             <div>
               <p className="text-gray-500">Type</p>

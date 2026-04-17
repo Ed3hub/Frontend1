@@ -3,15 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { Award, Download, Eye, Loader2, Calendar } from 'lucide-react';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface Certificate {
   id: number;
+  certificate_id: string;
   cert_type: 'standard' | 'nft';
   issued_at: string;
   course_title: string;
   course_slug: string;
   learner_name: string;
   pdf_url: string | null;
+  qr_code_url: string | null;
+  verify_url: string;
   nft_tx_hash: string;
 }
 
@@ -36,12 +40,32 @@ const MyCertificates: React.FC = () => {
     }
   };
 
-  const handleView = (certificateId: number) => {
-    router.push(`/certificate/${certificateId}`);
+  const handleView = (certificateId: string) => {
+    console.log('handleView called with id:', certificateId);
+    if (certificateId) {
+      console.log('Navigating to:', `/certificate/${certificateId}`);
+      router.push(`/certificate/${certificateId}`);
+    } else {
+      console.error('Certificate ID is missing');
+      alert('Certificate ID is missing. Please contact support.');
+    }
   };
 
-  const handleDownload = (pdfUrl: string) => {
-    window.open(pdfUrl, '_blank');
+  const handleDownload = async (pdfUrl: string) => {
+    try {
+      const response = await fetch(pdfUrl);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = 'certificate.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(pdfUrl, '_blank');
+    }
   };
 
   if (loading) {
@@ -102,13 +126,19 @@ const MyCertificates: React.FC = () => {
                   </div>
                   
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => handleView(cert.id)}
+                    <Link
+                      href={cert.certificate_id ? `/certificate/${cert.certificate_id}` : '#'}
+                      onClick={(e) => {
+                        if (!cert.certificate_id) {
+                          e.preventDefault();
+                          alert('Certificate ID is missing. Please contact support.');
+                        }
+                      }}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#00AEEF] text-white rounded-lg font-semibold hover:bg-[#0096ce] transition-colors text-sm"
                     >
                       <Eye size={16} />
                       View
-                    </button>
+                    </Link>
                     
                     {cert.pdf_url && (
                       <button
