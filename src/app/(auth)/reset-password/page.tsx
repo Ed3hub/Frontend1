@@ -26,8 +26,9 @@ export default function ResetPassword() {
     try {
       await api.post("/auth/forgot-password/", { email });
       setStep("otp");
-    } catch {
-      setError("Failed to send OTP. Please try again.");
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { detail?: string } } };
+      setError(e.response?.data?.detail ?? "Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
     }
