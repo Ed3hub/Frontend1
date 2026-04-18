@@ -89,7 +89,13 @@ export default function OngoingCourses({ setActivePage, setSelectedCourse }: {
             <div
               key={enr.id}
               onClick={() => {
-                setSelectedCourse({ title: enr.course.title, instructor: enr.course.instructor_name, img: enr.course.thumbnail || FALLBACK, slug: enr.course.slug });
+                setSelectedCourse({
+                  title: enr.course.title,
+                  instructor: enr.course.instructor_name,
+                  img: enr.course.thumbnail || FALLBACK,
+                  slug: enr.course.slug,
+                  courseId: enr.course.id,
+                });
                 setActivePage('courseDetails');
               }}
               className="group cursor-pointer"

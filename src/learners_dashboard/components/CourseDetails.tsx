@@ -107,16 +107,21 @@ const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLe
   const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-    if (!course?.slug) { setLoading(false); return; }
+    if (!course?.slug && !course?.courseId) { setLoading(false); return; }
     setLoading(true);
+    const courseRequest = course.courseId
+      ? api.get(`/courses/enrolled/${course.courseId}/`)
+      : api.get(`/courses/${course.slug}/`);
     Promise.all([
-      api.get(`/courses/${course.slug}/`),
+      courseRequest,
       api.get('/courses/my/enrollments/'),
     ]).then(([courseRes, enrollRes]) => {
       const courseData: CourseDetail = courseRes.data;
       setDetail(courseData);
       setReviews(courseData.reviews ?? []);
-      const enr = enrollRes.data.find((e: Enrollment & { course: { slug: string } }) => e.course.slug === course.slug);
+      const enr = enrollRes.data.find((e: Enrollment & { course: { id: number; slug: string } }) =>
+        e.course.id === courseData.id
+      );
       setEnrollment(enr ?? null);
       // detect if the current user already left a review
       if (enr && courseData.reviews?.length) {
