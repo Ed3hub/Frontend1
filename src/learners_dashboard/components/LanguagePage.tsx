@@ -35,24 +35,37 @@ const LANGUAGES = [
 
 function applyGoogleTranslate(langCode: string) {
   if (langCode === 'en') {
-    // Restore original — remove the cookie Google Translate sets
-    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
-    window.location.reload();
+    // Clear all googtrans cookies across path and domain variants
+    const host = window.location.hostname;
+    const cookiesToClear = [
+      'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;',
+      `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${host};`,
+      `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${host};`,
+    ];
+    cookiesToClear.forEach((c) => { document.cookie = c; });
+    localStorage.setItem('ed3hub_lang', 'en');
+
+    // Use the widget's restore function if available
+    const iframe = document.querySelector<HTMLIFrameElement>('.goog-te-banner-frame');
+    if (iframe) {
+      const restore = (iframe.contentWindow as any)?.document?.querySelector?.('.goog-te-button button');
+      restore?.click();
+    }
+    // Force reload to clear translation
+    window.location.href = window.location.href.split('#')[0];
     return;
   }
 
   const value = `/en/${langCode}`;
   document.cookie = `googtrans=${value}; path=/`;
   document.cookie = `googtrans=${value}; path=/; domain=${window.location.hostname}`;
+  localStorage.setItem('ed3hub_lang', langCode);
 
-  // Trigger the hidden Google Translate widget's select element
   const select = document.querySelector<HTMLSelectElement>('.goog-te-combo');
   if (select) {
     select.value = langCode;
     select.dispatchEvent(new Event('change'));
   } else {
-    // Widget not ready yet — reload with cookie set
     window.location.reload();
   }
 }
@@ -63,15 +76,23 @@ export default function LanguagePage() {
     typeof window !== 'undefined' ? (localStorage.getItem('ed3hub_lang') ?? 'en') : 'en'
   );
 
-  // Sync active from cookie on mount
+  // Sync active state from cookie/localStorage on mount
   useEffect(() => {
-    const match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
-    if (match) setActive(match[1]);
+    const saved = localStorage.getItem('ed3hub_lang') ?? 'en';
+    const cookieMatch = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+    if (saved === 'en' && cookieMatch) {
+      // Stale cookie — clear it
+      const host = window.location.hostname;
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${host};`;
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${host};`;
+    } else if (cookieMatch) {
+      setActive(cookieMatch[1]);
+    }
   }, []);
 
   const handleSelect = (code: string) => {
     setActive(code);
-    localStorage.setItem('ed3hub_lang', code);
     applyGoogleTranslate(code);
   };
 
