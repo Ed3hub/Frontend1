@@ -213,12 +213,26 @@ const Selection: React.FC<SelectionProps> = ({ selected, setSelected, activeTab 
             onClick={() => handleOptionClick("Reset your password")}
           >
             <span>
-              {/* Placeholder SVG */}
              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M8.5 11c0 .732.166 1.424.449 2.051L5 17v1.5S5.896 20 7 20h2v-2h2v-2h2.5c2.762 0 5-2.238 5-5s-2.238-5-5-5s-5 2.238-5 5m5 2a2 2 0 1 1 .001-4.001A2 2 0 0 1 13.5 13"/></svg>
             </span>
             <p className="hidden md:block text-xs md:text-[13px]">
               Reset your password
             </p>
+          </div>
+
+          {/* Language */}
+          <div
+            className={`flex items-center justify-center md:justify-start ${
+              selected === "Language" ? "text-[#007ED7]" : "text-[#5a5a5a]"
+            } w-12 h-12 md:w-auto md:h-auto gap-3 md:gap-4 cursor-pointer font-medium p-2 md:p-0 rounded-md transition-colors border md:border-0`}
+            onClick={() => handleOptionClick("Language")}
+          >
+            <span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12.87 15.07l-2.54-2.51l.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35C8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5l3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7l1.62-4.33L19.12 17z"/>
+              </svg>
+            </span>
+            <p className="hidden md:block text-xs md:text-[13px]">Language</p>
           </div>
         </>
       )}

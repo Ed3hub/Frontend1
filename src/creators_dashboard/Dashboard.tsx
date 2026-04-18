@@ -18,6 +18,7 @@ import {
   ResetPassword,
 } from "../creators_dashboard_components";
 import QuizAssessmentManager from "../creators_dashboard_components/quiz_assessment/QuizAssessmentManager";
+import LanguagePage from "../learners_dashboard/components/LanguagePage";
 import ChatPage from "../learners_dashboard/components/ChatPage";
 import "./dashboard.css";
 
@@ -134,6 +135,7 @@ const Dashboard = () => {
             {selected === "Course Progress" && <CourseProgress />}
             {selected === "Earnings" && <Earnings />}
             {selected === "Reset your password" && <ResetPassword />}
+            {selected === "Language" && <LanguagePage />}
           </>
         )}
       </main>
