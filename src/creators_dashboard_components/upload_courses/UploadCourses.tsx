@@ -577,8 +577,19 @@ const UploadCourses: React.FC<UploadCoursesProps> = ({ editCourse, onSaved }) =>
     setStatus('idle');
     setErrorMsg('');
     try {
+      const generateSlug = (title: string) => {
+        const base = title.toLowerCase().trim()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .slice(0, 50);
+        const uid = Math.random().toString(36).substring(2, 8);
+        return `${base}-${uid}`;
+      };
+
       const fd = new FormData();
       fd.append('title', form.title);
+      fd.append('slug', isEdit ? editCourse!.slug : generateSlug(form.title));
       fd.append('description', form.description);
       fd.append('skill_level', form.skill_level);
       fd.append('price', form.is_free ? '0' : form.price);
