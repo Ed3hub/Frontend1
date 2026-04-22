@@ -36,8 +36,24 @@ export default function SignUp() {
   const handleGoogleSignUp = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setError('');
-      setGoogleToken(tokenResponse.access_token);
-      setShowRolePicker(true);
+      // First check if this Google account already exists
+      // by attempting auth without a role — backend will return isNewUser
+      setGoogleLoading(true);
+      try {
+        const { role: finalRole, isNewUser } = await googleAuth(tokenResponse.access_token);
+        if (isNewUser) {
+          // New user — show role picker so they can choose
+          setGoogleToken(tokenResponse.access_token);
+          setShowRolePicker(true);
+        } else {
+          // Existing user — go straight to their dashboard, role cannot change
+          router.push(finalRole === 'educator' ? '/dashboard' : '/learner-dashboard');
+        }
+      } catch {
+        setError('Google sign-up failed. Please try again.');
+      } finally {
+        setGoogleLoading(false);
+      }
     },
     onError: () => setError('Google sign-up failed. Please try again.'),
   });
@@ -69,7 +85,8 @@ export default function SignUp() {
   const handleConfirmGoogleRole = async () => {
     setGoogleLoading(true);
     try {
-      const { role: finalRole } = await googleAuth(googleToken, googleRole);
+      const { role: finalRole, isNewUser } = await googleAuth(googleToken, googleRole);
+      // Role picker only matters for new users — existing users keep their original role
       router.push(finalRole === 'educator' ? '/dashboard' : '/learner-dashboard');
     } catch {
       setError('Failed to complete sign-up. Please try again.');
