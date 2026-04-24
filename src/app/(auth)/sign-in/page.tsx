@@ -58,6 +58,7 @@ function SignInContent() {
   const handleConfirmGoogleRole = async () => {
     setGoogleLoading(true);
     try {
+      // Pass role only for new user registration — backend ignores it for existing users
       const { role } = await googleAuth(googleToken, googleRole);
       router.push(role === "educator" ? "/dashboard" : "/learner-dashboard");
     } catch {
