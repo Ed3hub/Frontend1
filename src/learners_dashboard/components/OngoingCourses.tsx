@@ -21,7 +21,7 @@ const FALLBACK = 'https://images.unsplash.com/photo-1605792657660-596af9009e82?w
 
 export default function OngoingCourses({ setActivePage, setSelectedCourse }: {
   setActivePage: (page: string) => void;
-  setSelectedCourse: (course: { title: string; instructor: string; img: string; slug?: string }) => void;
+  setSelectedCourse: (course: { title: string; instructor: string; img: string; slug?: string; courseId?: number }) => void;
 }) {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [search, setSearch] = useState('');

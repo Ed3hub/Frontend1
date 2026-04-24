@@ -139,7 +139,7 @@ const QuizAssessmentManager: React.FC = () => {
             ...mod.quiz,
             module: mod.id,
           };
-          allQuizzes.push(moduleData.quiz);
+          allQuizzes.push(moduleData.quiz!);
         } else {
           console.log('No quiz for module:', mod.id);
         }
@@ -522,7 +522,7 @@ const QuizAssessmentManager: React.FC = () => {
                   >
                     <option value="">Select module...</option>
                     {modulesWithQuizzes.map((mod) => {
-                      const hasQuiz = !editingItem && mod.quiz;
+                      const hasQuiz = !editingItem && !!mod.quiz;
                       return (
                         <option key={mod.id} value={mod.id} disabled={hasQuiz}>
                           {mod.title} {hasQuiz ? '(Quiz exists)' : ''}

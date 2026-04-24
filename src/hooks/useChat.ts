@@ -16,6 +16,8 @@ interface Message {
   file?: string;
   reply_to?: Message;
   reactions?: any[];
+  read_by?: number[];
+  delivered?: boolean;
 }
 
 interface TypingUser {
