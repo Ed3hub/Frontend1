@@ -1,7 +1,5 @@
-export default function PrivacyPolicy() {
-    return (
-        <div className="flex flex-col justify-center items-center">
-            <h1>Privacy Policy</h1>
-        </div>
-    )
+import PrivacyPolicy from '@/privacy_policy/PrivacyPolicy';
+
+export default function PrivacyPolicyPage() {
+    return <PrivacyPolicy />
 }

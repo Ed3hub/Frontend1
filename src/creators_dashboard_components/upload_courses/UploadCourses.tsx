@@ -31,6 +31,7 @@ interface Assessment {
 interface Module {
   id: string;
   title: string;
+  description?: string;
   lessons: Lesson[];
   quizzes: Quiz[];
   assessments: Assessment[];

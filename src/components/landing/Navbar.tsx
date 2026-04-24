@@ -4,22 +4,28 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 interface NavigationItem {
   name: string;
   href: string;
-  isExternal?: boolean;
 }
 
-interface NavbarProps {
-  className?: string;
-}
-
-/** * SECTION 1: NAVIGATION HEADER
- */
-const Navbar: React.FC<NavbarProps> = ({ className = "" }) => {
+const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const [currentPath, setCurrentPath] = useState("");
+
+  useEffect(() => {
+    if (pathname) {
+      setCurrentPath(pathname);
+    }
+  }, [pathname]);
+
+  const isActive = (href: string) => {
+    return currentPath === href || (href !== "/" && currentPath.startsWith(href));
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -28,87 +34,99 @@ const Navbar: React.FC<NavbarProps> = ({ className = "" }) => {
   }, []);
 
   const navLinks: NavigationItem[] = [
-    { name: "Features", href: "#why-us" },
     { name: "Courses", href: "/courses" },
-    { name: "Instructors", href: "#instructors" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "Testimonials", href: "#testimonials" },
+    { name: "Tutors", href: "/tutors" },
+    { name: "Community", href: "/community" },
+    { name: "About Us", href: "/about-us" },
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 bg-white py-6 ${className}`}>
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/80 backdrop-blur-md shadow-sm py-3" : "bg-white py-4"} border-b border-gray-100 font-sans`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 cursor-pointer group">
+          {/* Logo Section */}
+          <Link href="/" className="flex items-center gap-1 group">
             <Image 
               src="/logo/ed3hub_logo.png" 
-              alt="Ed3hub logo" 
-              width={32} 
-              height={32} 
-              className="h-8 w-auto object-contain" 
+              alt="Ed3hub Logo" 
+              width={150} 
+              height={40} 
+              className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
             />
           </Link>
-          <div className="hidden lg:flex items-center gap-7 mr-4">
+
+          {/* Center Navigation Links (Desktop) */}
+          <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="text-md font-semibold text-slate-600 hover:text-blue-600 transition-colors"
-              >
-                {link.name}
-              </Link>
+              <div key={link.name} className="relative group/link">
+                <Link 
+                  href={link.href} 
+                  className={`text-sm font-medium transition-colors ${
+                    isActive(link.href) ? "text-[#075985]" : "text-gray-600 hover:text-[#0ea5e9]"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+                {isActive(link.href) && (
+                  <div className="absolute -bottom-[22px] left-0 w-full h-[2px] bg-[#075985]" />
+                )}
+              </div>
             ))}
           </div>
-          <div className="hidden lg:flex items-center gap-4">
-            <Link
-              href="/sign-in"
-              className="text-md font-semibold text-slate-600 hover:text-blue-600 transition-colors"
-            >
+
+          {/* Right Action Buttons (Desktop) */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link href="/sign-in" className="text-[#075985] hover:text-[#0ea5e9] text-sm font-semibold transition-colors">
               Sign In
             </Link>
             <Link href="/sign-up">
-              <button className="bg-gradient-to-r from-[#3C83F6] from-20% to-[#5EA3FA] to-80% text-white px-7 py-2.5 rounded-full font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-95">
-                Get Started
+              <button className="bg-[#0077b6] hover:bg-[#0ea5e9] text-white px-6 py-2 rounded-md text-sm font-semibold transition-all shadow-sm active:scale-95">
+                Sign Up
               </button>
             </Link>
           </div>
 
+          {/* Mobile Menu Toggle */}
           <button
-            className="lg:hidden text-slate-900"
+            className="md:hidden text-gray-600"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
+      {/* Mobile Menu (Dropdown) */}
       <div
-        className={`lg:hidden absolute w-full bg-white border-b transition-all duration-300 ${
-          isMenuOpen ? "max-h-[600px] opacity-100 py-8 shadow-xl" : "max-h-0 opacity-0 overflow-hidden"
+        className={`md:hidden absolute w-full bg-white border-b transition-all duration-300 ease-in-out ${
+          isMenuOpen ? "max-h-[500px] opacity-100 py-6" : "max-h-0 opacity-0 overflow-hidden"
         }`}
       >
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-6 px-4">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
               onClick={() => setIsMenuOpen(false)}
-              className="text-xl font-bold text-slate-700 hover:text-blue-600"
+              className={`text-lg font-medium transition-colors ${
+                isActive(link.href) ? "text-[#0ea5e9]" : "text-gray-700 hover:text-[#0ea5e9]"
+              }`}
             >
               {link.name}
             </Link>
           ))}
-          <Link
-            href="/sign-in"
-            className="text-xl font-bold text-slate-700 hover:text-blue-600"
-          >
-            Sign In
-          </Link>
-          <Link href="/sign-up" className="w-[80%] max-w-sm">
-            <button className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black text-lg w-full shadow-xl shadow-blue-100">
-              Get Started
-            </button>
-          </Link>
+          <div className="w-full flex flex-col gap-4 mt-2">
+            <Link href="/sign-in" className="w-full">
+              <button className="w-full text-center py-3 border border-gray-200 rounded-xl font-semibold text-[#075985]">
+                Sign In
+              </button>
+            </Link>
+            <Link href="/sign-up" className="w-full">
+              <button className="w-full bg-[#0077b6] text-white py-3 rounded-xl font-semibold shadow-lg shadow-blue-100">
+                Sign Up
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </nav>

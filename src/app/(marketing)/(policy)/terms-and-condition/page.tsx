@@ -1,7 +1,5 @@
-export default function TermsAndCondition() {
-    return (
-        <div className="flex flex-col justify-center items-center">
-            <h1>Terms and Conditions</h1>
-        </div>
-    )
+import TermsConditions from '@/terms_and_conditions/TermsConditions';
+
+export default function TermsAndConditionPage() {
+    return <TermsConditions />
 }

@@ -1,16 +1,10 @@
-import React from 'react';
 import {
   Navbar,
   Hero,
-  Metrics,
-  WhyChooseUs,
   TrendingCourses,
-  Instructors,
-  Testimonials,
-  PricingPlan,
-  ReadyToLearn,
+  WhyChooseUs,
   Footer,
-} from '@/components/landing';
+} from '@/landing/landingPage';
 
 /** * MAIN LANDING PAGE CONTAINER 
  */
@@ -29,13 +23,8 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <Metrics />
-        <WhyChooseUs />
         <TrendingCourses />
-        <Instructors />
-        <Testimonials />
-        <PricingPlan />
-        <ReadyToLearn />
+        <WhyChooseUs />
       </main>
       <Footer />
     </div>

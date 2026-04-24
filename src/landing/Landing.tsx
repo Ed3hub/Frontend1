@@ -1,14 +1,9 @@
 import React from 'react';
-import Navbar from './landingPage/Navbar';
+import Navbar from '@/components/landing/Navbar';
 import Hero from './landingPage/Hero';
-import Metrics from './landingPage/Metrics';
-import WhyChooseUs from './landingPage/WhyChooseUs';
 import TrendingCourses from './landingPage/TrendingCourses';
-import Instructors from './landingPage/Instructors';
-import Testimonials from './landingPage/Testimonials';
-import PricingPlan from './landingPage/PricingPlan';
-import ReadyToLearn from './landingPage/ReadyToLearn';
-import Footer from './landingPage/Footer';
+import Footer from '@/components/landing/Footer';
+import WhyChooseUs from './landingPage/WhyChooseUs';
 
 /** * MAIN LANDING PAGE CONTAINER 
  */
@@ -27,13 +22,8 @@ const Landing: React.FC = () => {
       <Navbar />
       <main>
         <Hero />
-        <Metrics />
-        <WhyChooseUs />
         <TrendingCourses />
-        <Instructors />
-        <Testimonials />
-        <PricingPlan />
-        <ReadyToLearn />
+        <WhyChooseUs />
       </main>
       <Footer />
     </div>

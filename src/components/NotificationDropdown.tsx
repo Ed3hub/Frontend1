@@ -1,7 +1,7 @@
 'use client';
 
 import { useNotifications } from '@/hooks/useNotifications';
-import { X, Check, Trash2 } from 'lucide-react';
+import { X, Check, Trash2, Bell } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 
