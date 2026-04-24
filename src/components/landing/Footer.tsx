@@ -1,83 +1,48 @@
-"use client";
+import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 
-import React from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Twitter, Linkedin, Facebook, Instagram } from "lucide-react";
+const Footer: React.FC = () => {
+  const currentYear = new Date().getFullYear();
 
-/** * SECTION 10: FOOTER SECTION
- */
-const Footer: React.FC = () => (
-  <footer className="bg-slate-950 text-white pt-24 pb-12 border-t border-white/5">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-20 text-left">
-        <div className="lg:col-span-2">
-          <Link href="/" className="flex items-center gap-2 mb-8 cursor-pointer group">
+  return (
+    <footer className="w-full bg-[#f1f5f9] py-10 px-6 md:px-16 border-t border-slate-200">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+        
+        {/* Logo Section */}
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center gap-1 group">
             <Image 
               src="/logo/ed3hub_logo.png" 
-              alt="Ed3hub logo" 
-              width={32} 
-              height={32} 
-              className="h-8 w-auto object-contain" 
+              alt="Ed3hub Logo" 
+              width={150} 
+              height={40} 
+              className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
             />
           </Link>
-          <p className="text-slate-400 text-lg leading-relaxed max-w-sm mb-10">
-            Empowering learners worldwide with quality education and expert-led
-            courses.{" "}
-          </p>
         </div>
-        <div>
-          <h4 className="text-lg font-bold mb-4 text-white">Company</h4>
-          <ul className="space-y-4">
-            {["About Us", "Careers", "Press", "Blog"].map((link) => (
-              <li key={link}>
-                <Link
-                  href="#"
-                  className="text-slate-400 hover:text-blue-500 transition-colors font-medium"
-                >
-                  {link}
-                </Link>
-              </li>
-            ))}
-          </ul>
+
+        {/* Navigation Links */}
+        <div className="flex items-center space-x-8">
+          <Link href="/privacy-policy" className="text-slate-400 hover:text-slate-600 text-sm transition-colors">
+            Privacy Policy
+          </Link>
+          <Link href="/terms-and-condition" className="text-slate-400 hover:text-slate-600 text-sm transition-colors">
+            Terms of Service
+          </Link>
+          <a href="#" className="text-slate-400 hover:text-slate-600 text-sm transition-colors">
+            Contact
+          </a>
         </div>
-        <div>
-          <h4 className="text-lg font-bold mb-4 text-white">Resources</h4>
-          <ul className="space-y-4">
-            {["Help Center", "Contact", "Terms", "Privacy"].map((link) => (
-              <li key={link}>
-                <Link
-                  href="#"
-                  className="text-slate-400 hover:text-blue-500 transition-colors font-medium"
-                >
-                  {link}
-                </Link>
-              </li>
-            ))}
-          </ul>
+
+        {/* Copyright Section */}
+        <div className="text-slate-400 text-sm">
+          © {currentYear} Ed3Hub. The Architect of Intelligence.
         </div>
-        <div className="">
-          <h4 className="text-lg font-bold mb-4 text-white">Follow Us</h4>
-          <div className="flex gap-4">
-            {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
-              <Link
-                key={i}
-                href="#"
-                className="w-10 h-10 rounded-xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 transition-all duration-300"
-              >
-                <Icon size={20} />
-              </Link>
-            ))}
-          </div>
-        </div>
+        
       </div>
-      <div className="pt-12 border-t border-white/5 text-slate-500 text-sm font-medium">
-        <p className="text-center">
-          © 2024 ed3hub Learning Inc. All rights reserved.
-        </p>
-      </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export default Footer;

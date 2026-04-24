@@ -1,134 +1,113 @@
-import React from "react";
-import { Sparkles, Star, Book, Clock, Users, ArrowRight } from "lucide-react";
+import React from 'react';
+import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 
-/** * SECTION 5: TRENDING COURSES SECTION
- */
-const TrendingCourses = () => {
-  const courses = [
-    {
-      title: "Complete Web Development Bootcamp",
-      desc: "Master HTML, CSS, JavaScript, React and build real-world projects.",
-      category: "Development",
-      price: 89,
-      rating: 4.9,
-      reviews: "2.4k",
-      img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/b93c3b4ba7-e6d262df4d849c43430f.png",
-      instructor: "John Smith",
-      bestSeller: true,
-      categoryBg: "#EBF2FE",
-      catColor: "#579FF9",
-    },
-    {
-      title: "UI/UX Design Masterclass",
-      desc: "Learn design thinking, Figma, prototyping and create stunning interfaces.",
-      category: "Design",
-      price: 79,
-      rating: 4.8,
-      reviews: "1.8k",
-      img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/620af3fda3-4171be31550b79881e0e.png",
-      instructor: "Sarah Johnson",
-      bestSeller: false,
-      categoryBg: "#EBF2FE",
-      catColor: "#579FF9",
-    },
-    {
-      title: "Python for Data Science & ML",
-      desc: "Master Python, NumPy, Pandas and build ML models from scratch.",
-      category: "Data Science",
-      price: 99,
-      rating: 4.9,
-      reviews: "3.2k",
-      img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/6998e592dd-4ccd9b81f3ed80256d86.png",
-      instructor: "Mike Chen",
-      bestSeller: true,
-      categoryBg: "#DCFCE7",
-      catColor: "#16A34A",
-    },
-  ];
-
+const TrendingCourses: React.FC = () => {
   return (
-    <section id="courses" className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center md:text-left mb-16">
-          <div className="w-fit px-4 mx-auto py-1.5 rounded-full bg-[#E6EEFA] text-blue-600 text-md font-semibold uppercase mb-4">
-            popular courses
-          </div>{" "}
-          <h3 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 text-center">
-            Trending Courses
-          </h3>
-          <p className="text-slate-600 text-lg font-medium text-center">
-            Explore our most popular courses and start learning today.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.map((course, idx) => (
-            <div
-              key={idx}
-              className="group bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-lg hover:shadow-2xl transition-all duration-500"
-            >
-              <div className="relative h-64 overflow-hidden rounded-t-2xl">
-                <img
-                  src={course.img}
-                  alt={course.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-              </div>
-
-              <div className="p-8 pt-4">
-                <div className="flex justify-between items-center mb-4">
-                  <div
-                    className="px-4 p-1.5 rounded-full font-bold"
-                    style={{
-                      backgroundColor: course.categoryBg,
-                      color: course.catColor,
-                    }}
-                  >
-                    {course.category}
-                  </div>
-                  <div className="flex items-center gap-1 text-amber-500 font-bold text-sm">
-                    <Star size={16} fill="currentColor" /> {course.rating}{" "}
-                    <span className="text-slate-400 font-medium">
-                      ({course.reviews})
-                    </span>
-                  </div>
-                </div>
-
-                <h4 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors leading-tight">
-                  {course.title}
-                </h4>
-                <p className="mt-3 pb-3 mb-4 text-gray-500 font-medium border-b border-slate-100">
-                  {course.desc}
-                </p>
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 border border-slate-100 flex items-center justify-center overflow-hidden">
-                      <img
-                        src={`https://i.pravatar.cc/150?u=${idx}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <span className="text-md font-semibold text-black">
-                      {course.instructor}
-                    </span>
-                  </div>
-                  <span className="text-2xl font-black text-[#3B82F6]">
-                    ${course.price}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-16 text-center">
-          <button className="bg-gradient-to-r from-[#3C83F6] from-20% to-[#5EA3FA] to-80% text-white  px-10 py-4 rounded-md font-bold text-lg hover:shadow-lg shadow-blue-300  flex items-center gap-3 mx-auto active:scale-95 group">
-            View All Courses
-            <ArrowRight
-              size={22}
-              className="group-hover:translate-x-1 transition-transform"
-            />
+    <section className="py-20 px-6 md:px-16 bg-[#F8FAFC]">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Curated Learning Paths</h2>
+            <p className="text-slate-500 max-w-xl leading-relaxed">
+              Explore our meticulously designed tracks across technology, business, and creative disciplines.
+            </p>
+          </div>
+          <button className="flex items-center gap-2 text-[#0077b6] font-bold text-sm hover:underline transition-all">
+            View all paths <ArrowRight size={18} />
           </button>
+        </div>
+
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          {/* 1. Technology - Large Card (Spans 2 columns) */}
+          <div className="md:col-span-2 relative group bg-white rounded-2xl border border-slate-100 overflow-hidden flex flex-col justify-between p-8 min-h-[340px]">
+            {/* Subtle background graphic overlay */}
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] bg-right-bottom bg-no-repeat" />
+            
+            <div className="relative z-10">
+              <span className="inline-block px-3 py-1 rounded-full bg-[#EEF2FF] text-[#6366F1] text-[10px] font-bold uppercase tracking-wider mb-6">
+                Technology
+              </span>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-[#0077b6] transition-colors">
+                Data Science & Machine Learning
+              </h3>
+              <p className="text-slate-500 text-sm leading-relaxed max-w-sm">
+                Master the algorithms that drive tomorrow's insights. From Python basics to advanced neural networks.
+              </p>
+            </div>
+
+            <div className="relative z-10 flex items-center justify-between mt-8">
+              <div className="flex -space-x-3">
+                {[1, 2].map((i) => (
+                  <div key={i} className="w-10 h-10 rounded-full border-4 border-white overflow-hidden bg-slate-200 relative">
+                    <Image src={`https://i.pravatar.cc/100?img=${i+10}`} alt="Student" fill className="object-cover" />
+                  </div>
+                ))}
+                <div className="w-10 h-10 rounded-full border-4 border-white bg-[#F1F5F9] flex items-center justify-center text-[10px] font-bold text-slate-500">
+                  +5
+                </div>
+              </div>
+              <ArrowRight className="text-[#0077b6] group-hover:translate-x-1 transition-transform" size={24} />
+            </div>
+          </div>
+
+          {/* 2. Business - Standard Card */}
+          <div className="group bg-white rounded-2xl border border-slate-100 p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+              <span className="inline-block px-3 py-1 rounded-full bg-[#F5F3FF] text-[#8B5CF6] text-[10px] font-bold uppercase tracking-wider mb-6">
+                Business
+              </span>
+              <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-[#0077b6] transition-colors">
+                Digital Marketing Strategy
+              </h3>
+              <p className="text-slate-500 text-sm leading-relaxed">
+                Build campaigns that convert. SEO, content strategy, and performance marketing.
+              </p>
+            </div>
+            <div className="flex justify-end mt-8">
+              <ArrowRight className="text-[#0077b6] group-hover:translate-x-1 transition-transform" size={24} />
+            </div>
+          </div>
+
+          {/* 3. Creative - Standard Card */}
+          <div className="group bg-white rounded-2xl border border-slate-100 p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+              <span className="inline-block px-3 py-1 rounded-full bg-[#EFF6FF] text-[#3B82F6] text-[10px] font-bold uppercase tracking-wider mb-6">
+                Creative
+              </span>
+              <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-[#0077b6] transition-colors">
+                UX/UI & Graphic Design
+              </h3>
+              <p className="text-slate-500 text-sm leading-relaxed">
+                Design experiences that resonate. Typography, layout, and user research fundamentals.
+              </p>
+            </div>
+            <div className="flex justify-end mt-8">
+              <ArrowRight className="text-[#0077b6] group-hover:translate-x-1 transition-transform" size={24} />
+            </div>
+          </div>
+
+          {/* 4. Leadership - Large Card (Spans 2 columns) */}
+          <div className="md:col-span-2 group bg-white rounded-2xl border border-slate-100 p-8 flex flex-col justify-between hover:shadow-md transition-shadow min-h-[220px]">
+            <div>
+              <span className="inline-block px-3 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5] text-[10px] font-bold uppercase tracking-wider mb-6">
+                Leadership
+              </span>
+              <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-[#0077b6] transition-colors">
+                Executive Leadership & Management
+              </h3>
+              <p className="text-slate-500 text-sm leading-relaxed max-w-xl">
+                Develop soft skills and strategic thinking required to lead teams effectively in modern organizations.
+              </p>
+            </div>
+            <div className="flex justify-end mt-4">
+              <ArrowRight className="text-[#0077b6] group-hover:translate-x-1 transition-transform" size={24} />
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
