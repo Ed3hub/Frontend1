@@ -1,27 +1,39 @@
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
+import Navbar from '@/components/landing/Navbar';
+import Footer from '@/components/landing/Footer';
+import RecommendedCourses from '@/learners_dashboard/components/RecommendedCourses';
+import { useRouter } from 'next/navigation';
 
 export default function CoursesPage() {
+  const router = useRouter();
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
+
+  // When a course is clicked on the public page, redirect to sign-in
+  const handleAction = () => {
+    router.push('/sign-in');
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            All Courses
+    <div className="min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-700">
+      <Navbar />
+      <main className="pt-24 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            Master your future with <span className="text-blue-600">Ed3Hub</span>
           </h1>
-          <p className="text-xl text-gray-600">
-            Explore our comprehensive collection of courses
+          <p className="text-slate-500 text-lg max-w-2xl mx-auto">
+            Join thousands of learners and gain the skills that matter. From blockchain to design, we have everything you need.
           </p>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Courses Coming Soon
-          </h2>
-          <p className="text-gray-600">
-            We're working hard to bring you amazing courses. Stay tuned!
-          </p>
-        </div>
-      </div>
+        <RecommendedCourses 
+          setActivePage={handleAction} 
+          setSelectedCourse={setSelectedCourse} 
+        />
+      </main>
+      <Footer />
     </div>
   );
-}
+}
