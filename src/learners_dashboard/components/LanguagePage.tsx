@@ -33,26 +33,32 @@ const LANGUAGES = [
   { name: 'Basque',     code: 'eu', flag: '🏴' },
 ];
 
+function clearGoogTransCookies() {
+  const host = window.location.hostname;
+  const expire = 'expires=Thu, 01 Jan 1970 00:00:00 UTC';
+  ['/', '/learner-dashboard', '/dashboard'].forEach((path) => {
+    document.cookie = `googtrans=; ${expire}; path=${path};`;
+    document.cookie = `googtrans=; ${expire}; path=${path}; domain=${host};`;
+    document.cookie = `googtrans=; ${expire}; path=${path}; domain=.${host};`;
+  });
+}
+
 function applyGoogleTranslate(langCode: string) {
   if (langCode === 'en') {
-    // Clear all googtrans cookies across path and domain variants
-    const host = window.location.hostname;
-    const cookiesToClear = [
-      'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;',
-      `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${host};`,
-      `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${host};`,
-    ];
-    cookiesToClear.forEach((c) => { document.cookie = c; });
+    clearGoogTransCookies();
     localStorage.setItem('ed3hub_lang', 'en');
 
-    // Use the widget's restore function if available
-    const iframe = document.querySelector<HTMLIFrameElement>('.goog-te-banner-frame');
-    if (iframe) {
-      const restore = (iframe.contentWindow as any)?.document?.querySelector?.('.goog-te-button button');
-      restore?.click();
+    // Use Google Translate's own restore mechanism
+    const w = window as any;
+    if (typeof w.ed3hubRestoreEnglish === 'function') {
+      w.ed3hubRestoreEnglish();
+      setTimeout(() => { clearGoogTransCookies(); window.location.reload(); }, 500);
+    } else if (typeof w.doGTranslate === 'function') {
+      w.doGTranslate('en|en');
+      setTimeout(() => { clearGoogTransCookies(); window.location.reload(); }, 500);
+    } else {
+      window.location.reload();
     }
-    // Force reload to clear translation
-    window.location.href = window.location.href.split('#')[0];
     return;
   }
 
@@ -81,11 +87,7 @@ export default function LanguagePage() {
     const saved = localStorage.getItem('ed3hub_lang') ?? 'en';
     const cookieMatch = document.cookie.match(/googtrans=\/en\/([^;]+)/);
     if (saved === 'en' && cookieMatch) {
-      // Stale cookie — clear it
-      const host = window.location.hostname;
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${host};`;
-      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${host};`;
+      clearGoogTransCookies();
     } else if (cookieMatch) {
       setActive(cookieMatch[1]);
     }
