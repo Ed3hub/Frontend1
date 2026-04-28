@@ -102,18 +102,18 @@ function SignInContent() {
       </div>
 
       {passwordReset && (
-        <p className="text-green-600 text-sm text-center bg-green-50 border border-green-200 rounded-md px-4 py-2 w-2/3">
+        <p className="text-green-600 text-sm text-center bg-green-50 border border-green-200 rounded-md px-4 py-2 w-full max-w-md">
           ✓ Password reset successfully! You can now sign in.
         </p>
       )}
 
       {verified && (
-        <p className="text-green-600 text-sm text-center bg-green-50 border border-green-200 rounded-md px-4 py-2 w-2/3">
+        <p className="text-green-600 text-sm text-center bg-green-50 border border-green-200 rounded-md px-4 py-2 w-full max-w-md">
           ✓ Email verified successfully! You can now sign in.
         </p>
       )}
 
-      <form className="w-2/3 space-y-4 py-5" onSubmit={handleSignIn}>
+      <form className="w-full max-w-md space-y-4 py-5" onSubmit={handleSignIn}>
         <Input type="text" placeholder="Username" label="Username" labelClassName="text-sm"
           value={username} onChange={(e) => { setUsername(e.target.value); setError(""); }} />
         <Input type="password" placeholder="Password" label="Password" labelClassName="text-sm" togglePassword
