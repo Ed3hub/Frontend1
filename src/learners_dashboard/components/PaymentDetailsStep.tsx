@@ -30,7 +30,6 @@ function CardPayment({ onBack, onSuccess, course, price, courseId }: {
   const handlePay = async () => {
     if (!email) { setError('Email is required for payment.'); return; }
     setError('');
-    setLoading(true);
 
     // Wait up to 5s for Paystack script to be ready
     let attempts = 0;
@@ -47,7 +46,6 @@ function CardPayment({ onBack, onSuccess, course, price, courseId }: {
 
     if (!PaystackPop) {
       setError('Paystack failed to load. Please check your connection and refresh.');
-      setLoading(false);
       return;
     }
 
@@ -58,22 +56,27 @@ function CardPayment({ onBack, onSuccess, course, price, courseId }: {
       currency: 'NGN',
       ref: `ed3hub_${Date.now()}`,
       metadata: { course_title: course?.title },
-      callback: async (response: { reference: string }) => {
-        if (courseId) {
+      callback: (response: { reference: string }) => {
+        // Payment confirmed by Paystack — now enroll
+        setLoading(true);
+        const enroll = async () => {
           try {
-            await api.post(`/courses/${courseId}/enroll/`, { reference: response.reference });
+            if (courseId) {
+              await api.post(`/courses/${courseId}/enroll/`, { reference: response.reference });
+            }
             setLoading(false);
             setEnrolled(true);
           } catch (enrollErr: any) {
             setLoading(false);
             setError(enrollErr?.response?.data?.detail ?? 'Payment succeeded but enrollment failed. Please contact support.');
           }
-        } else {
-          setLoading(false);
-          setEnrolled(true);
-        }
+        };
+        enroll();
       },
-      onClose: () => setLoading(false),
+      onClose: () => {
+        // Only reset loading if not already enrolling
+        setLoading(false);
+      },
     });
     popup.openIframe();
   };
