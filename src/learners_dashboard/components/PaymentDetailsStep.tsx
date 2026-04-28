@@ -60,7 +60,7 @@ function CardPayment({ onBack, onSuccess, course, price, courseId }: {
       metadata: { course_title: course?.title },
       callback: (response: { reference: string }) => {
         if (courseId) {
-          api.post(`/courses/${courseId}/enroll/`).catch(() => {});
+          api.post(`/courses/${courseId}/enroll/`, { reference: response.reference }).catch(() => {});
         }
         setLoading(false);
         setEnrolled(true);

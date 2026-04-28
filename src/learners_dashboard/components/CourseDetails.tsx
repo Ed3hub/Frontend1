@@ -90,7 +90,6 @@ const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLe
   const [detail, setDetail] = useState<CourseDetail | null>(null);
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
   const [certModalOpen, setCertModalOpen] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [expandedModules, setExpandedModules] = useState<number[]>([0]);
@@ -300,7 +299,19 @@ const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLe
             </button>
           ) : (
             <button
-              onClick={() => setModalOpen(true)}
+              onClick={() => {
+                if (setSelectedCourse && d) {
+                  setSelectedCourse({
+                    title: d.title,
+                    instructor: d.instructor_name,
+                    img: d.thumbnail || course?.img || FALLBACK,
+                    slug: d.slug,
+                    price: d.price,
+                    courseId: d.id,
+                  });
+                }
+                setActivePage('payment');
+              }}
               className="px-8 py-3 bg-[#00A6FB] text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors shadow-md shadow-blue-200"
             >
               Enroll Now
@@ -558,58 +569,6 @@ const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLe
           courseTitle={d.title}
           onClose={() => setCertModalOpen(false)}
         />
-      )}
-
-      {/* Purchase Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 p-8 flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex flex-col gap-2 text-center flex-1">
-                <h2 className="text-xl font-extrabold text-gray-900">Subscribe to Ed3Hub</h2>
-                <p className="text-gray-500 text-sm leading-relaxed">Pay a monthly or yearly subscription for unlimited access to all eligible courses.</p>
-                <hr className="border-gray-100" />
-                <button
-                  onClick={() => { setModalOpen(false); setActivePage('subscription'); }}
-                  className="px-12 bg-[#00A6FB] py-3 rounded-xl text-white font-semibold text-sm hover:bg-blue-700 transition-colors shadow-md shadow-blue-200"
-                >
-                  Subscribe
-                </button>
-              </div>
-              <div className="flex flex-col gap-2 text-center flex-1">
-                <h2 className="text-xl font-extrabold text-gray-900">One-Time Purchase</h2>
-                <p className="text-gray-500 text-sm leading-relaxed">Buy this course once for {d?.is_free ? 'free' : `₦${d?.price}`} with lifetime access.</p>
-                <hr className="border-gray-100" />
-                <button
-                  onClick={() => {
-                    setModalOpen(false);
-                    if (setSelectedCourse && d) {
-                      setSelectedCourse({
-                        title: d.title,
-                        instructor: d.instructor_name,
-                        img: d.thumbnail || course?.img || FALLBACK,
-                        slug: d.slug,
-                        price: d.price,
-                        courseId: d.id,
-                      });
-                    }
-                    setActivePage('payment');
-                  }}
-                  className="px-12 bg-[#00A6FB] py-3 rounded-xl text-white font-semibold text-sm hover:bg-blue-700 transition-colors shadow-md shadow-blue-200"
-                >
-                  Make Payment
-                </button>
-              </div>
-            </div>
-            <button
-              onClick={() => setModalOpen(false)}
-              className="py-3 px-12 w-48 mx-auto rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );
