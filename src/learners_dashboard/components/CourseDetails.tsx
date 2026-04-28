@@ -290,8 +290,11 @@ const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLe
                 try {
                   const { data } = await api.post(`/courses/${d.id}/enroll/`);
                   setEnrollment(data);
-                } catch {}
-                finally { setEnrolling(false); }
+                } catch (err: any) {
+                  console.error('Enrollment failed:', err?.response?.data);
+                } finally {
+                  setEnrolling(false);
+                }
               }}
               className="px-8 py-3 bg-[#00A6FB] text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors shadow-md shadow-blue-200 disabled:opacity-60"
             >
