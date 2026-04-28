@@ -58,12 +58,20 @@ function CardPayment({ onBack, onSuccess, course, price, courseId }: {
       currency: 'NGN',
       ref: `ed3hub_${Date.now()}`,
       metadata: { course_title: course?.title },
-      callback: (response: { reference: string }) => {
+      callback: async (response: { reference: string }) => {
         if (courseId) {
-          api.post(`/courses/${courseId}/enroll/`, { reference: response.reference }).catch(() => {});
+          try {
+            await api.post(`/courses/${courseId}/enroll/`, { reference: response.reference });
+            setLoading(false);
+            setEnrolled(true);
+          } catch (enrollErr: any) {
+            setLoading(false);
+            setError(enrollErr?.response?.data?.detail ?? 'Payment succeeded but enrollment failed. Please contact support.');
+          }
+        } else {
+          setLoading(false);
+          setEnrolled(true);
         }
-        setLoading(false);
-        setEnrolled(true);
       },
       onClose: () => setLoading(false),
     });
