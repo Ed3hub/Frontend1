@@ -32,12 +32,12 @@ const Hero: React.FC = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-wrap items-center gap-4">
-            <Link href="/courses">
+            <Link href="/sign-in">
               <button className="px-8 py-3 bg-[#0077b6] text-white font-semibold rounded-md hover:bg-[#005f91] transition-all shadow-md active:scale-95">
                 Explore Courses →
               </button>
             </Link>
-            <Link href="/tutors">
+            <Link href="/sign-in">
               <button className="px-8 py-3 bg-white border border-slate-200 text-slate-700 font-semibold rounded-md hover:bg-slate-50 transition-all">
                 Meet our Tutors
               </button>

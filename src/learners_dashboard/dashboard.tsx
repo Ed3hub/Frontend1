@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HomePage from './components/HomePage';
 import LanguagePage from './components/LanguagePage';
@@ -27,33 +27,65 @@ export default function App() {
   const [selectedLesson, setSelectedLesson] = useState<{ title: string; type: string; duration: string; completed: boolean } | null>(null);
   const [selectedLessonId, setSelectedLessonId] = useState<number | null>(null);
 
+  useEffect(() => {
+    // 1. Handle initial page from URL query param
+    const params = new URLSearchParams(window.location.search);
+    const initialPage = params.get('page');
+    if (initialPage) {
+      setActivePage(initialPage);
+    }
+
+    // 2. Handle browser back/forward buttons
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.page) {
+        setActivePage(event.state.page);
+      } else {
+        // Fallback if no state (e.g., initial entry)
+        const currentParams = new URLSearchParams(window.location.search);
+        setActivePage(currentParams.get('page') || 'home');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const handlePageChange = (page: string) => {
+    if (page !== activePage) {
+      setActivePage(page);
+      // Update browser history
+      window.history.pushState({ page }, '', `?page=${page}`);
+    }
+  };
+
   const renderPage = () => {
     switch(activePage) {
-      case 'home': return <HomePage setActivePage={setActivePage} setSelectedCourse={setSelectedCourse} />;
+      case 'home': return <HomePage setActivePage={handlePageChange} setSelectedCourse={setSelectedCourse} />;
       case 'languages': return <LanguagePage />;
-      case 'tutors': return <TutorsPage setSelectedTutor={setSelectedTutor} setActivePage={setActivePage} />;
-      case 'tutorProfile': return <TutorProfilePage tutor={selectedTutor} setActivePage={setActivePage} />;
+      case 'tutors': return <TutorsPage setSelectedTutor={setSelectedTutor} setActivePage={handlePageChange} />;
+      case 'tutorProfile': return <TutorProfilePage tutor={selectedTutor} setActivePage={handlePageChange} />;
       // case 'community': return <CommunityPage />;
       case 'chat': return <ChatPage tutor={selectedTutor} />;
-      case 'ongoingCourses': return <OngoingCourses setActivePage={setActivePage} setSelectedCourse={setSelectedCourse} />;
-      case 'recommendedCourses': return <RecommendedCourses setActivePage={setActivePage} setSelectedCourse={setSelectedCourse} />;
-      case 'courseDetails': return <CourseDetails setActivePage={setActivePage} course={selectedCourse} setSelectedCourse={setSelectedCourse} setSelectedLessonId={setSelectedLessonId} />;
-      case 'courseLearning': return <CourseLearning setActivePage={setActivePage} course={selectedCourse} initialLessonId={selectedLessonId} />;
-      case 'courseLesson': return <CourseLesson setActivePage={setActivePage} course={selectedCourse} lesson={selectedLesson} />;
-      case 'payment': return <CheckoutFlow setActivePage={setActivePage} setSelectedCourse={setSelectedCourse} course={selectedCourse} />;
-      case 'subscription': return <SubscriptionPage setActivePage={setActivePage} />;
-      case 'profile': return <ProfilePage setActivePage={setActivePage} />;
-      case 'tokens': return <TokensPage setActivePage={setActivePage} />;
-      default: return <HomePage setActivePage={setActivePage} setSelectedCourse={setSelectedCourse} />;
+      case 'ongoingCourses': return <OngoingCourses setActivePage={handlePageChange} setSelectedCourse={setSelectedCourse} />;
+      case 'recommendedCourses': return <RecommendedCourses setActivePage={handlePageChange} setSelectedCourse={setSelectedCourse} />;
+      case 'courseDetails': return <CourseDetails setActivePage={handlePageChange} course={selectedCourse} setSelectedCourse={setSelectedCourse} setSelectedLessonId={setSelectedLessonId} />;
+      case 'courseLearning': return <CourseLearning setActivePage={handlePageChange} course={selectedCourse} initialLessonId={selectedLessonId} />;
+      case 'courseLesson': return <CourseLesson setActivePage={handlePageChange} course={selectedCourse} lesson={selectedLesson} />;
+      case 'payment': return <CheckoutFlow setActivePage={handlePageChange} setSelectedCourse={setSelectedCourse} course={selectedCourse} />;
+      case 'subscription': return <SubscriptionPage setActivePage={handlePageChange} />;
+      case 'profile': return <ProfilePage setActivePage={handlePageChange} />;
+      case 'tokens': return <TokensPage setActivePage={handlePageChange} />;
+      default: return <HomePage setActivePage={handlePageChange} setSelectedCourse={setSelectedCourse} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden">
-      <Navbar activePage={activePage} setActivePage={setActivePage} />
+      <Navbar activePage={activePage} setActivePage={handlePageChange} />
       <main className="transition-all duration-300">
         {renderPage()}
       </main>
     </div>
   );
 }
+

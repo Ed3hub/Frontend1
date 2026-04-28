@@ -37,7 +37,7 @@ const Footer: React.FC = () => {
 
         {/* Copyright Section */}
         <div className="text-slate-400 text-sm">
-          © {currentYear} Ed3Hub. The Architect of Intelligence.
+          © {currentYear} Ed3Hub. Where learning levels up.
         </div>
         
       </div>

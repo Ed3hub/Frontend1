@@ -20,7 +20,7 @@ export default function RootLayout({
         <script src="https://js.paystack.co/v1/inline.js"></script>
       </head>
       <body className="antialiased" suppressHydrationWarning>
-        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "placeholder-client-id"}>
           <AuthProvider>
             <GoogleTranslateInit />
             {children}
