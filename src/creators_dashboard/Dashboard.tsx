@@ -13,7 +13,6 @@ import {
   Pricing,
   CourseVisibility,
   PublishCourse,
-  CourseProgress,
   Earnings,
   ResetPassword,
 } from "../creators_dashboard_components";
@@ -108,7 +107,7 @@ const Dashboard = () => {
           setActiveTab={(tab) => {
             setActiveTab(tab);
             if (tab === "Home") { setSelected("My Courses"); setEditCourse(null); }
-            if (tab === "Account") setSelected("Course Progress");
+            if (tab === "Account") setSelected("Earnings");
             if (tab === "Messages") setSelected("");
           }}
         />
@@ -132,7 +131,6 @@ const Dashboard = () => {
             {selected === "Quiz and Assessment" && <QuizAssessmentManager />}
             {selected === "Community and Interaction" && <Community />}
             {selected === "Schedule a Session" && <ScheduleSession />}
-            {selected === "Course Progress" && <CourseProgress />}
             {selected === "Earnings" && <Earnings />}
             {selected === "Reset your password" && <ResetPassword />}
             {selected === "Language" && <LanguagePage />}

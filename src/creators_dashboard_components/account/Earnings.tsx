@@ -18,6 +18,8 @@ interface WalletData {
   balance: string;
   total_earned: string;
   total_withdrawn: string;
+  total_courses: number;
+  total_students: number;
   transactions: Transaction[];
 }
 
@@ -89,7 +91,12 @@ const Earnings = () => {
     }
   };
 
-  useEffect(() => { fetchWallet(); }, []);
+  useEffect(() => {
+    fetchWallet();
+    // Auto-refresh every 30 seconds to pick up new sales
+    const interval = setInterval(fetchWallet, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const balance = parseFloat(wallet?.balance ?? "0");
 
@@ -161,8 +168,8 @@ const Earnings = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        <MetricCard icon={Star} value="4.7" label="Average Rating" bgColor="bg-blue-50" />
-        <MetricCard icon={BookOpen} value="12" label="Total Courses" bgColor="bg-blue-50" />
+        <MetricCard icon={Star} value={walletLoading ? "..." : `${wallet?.total_students ?? 0}`} label="Total Students" bgColor="bg-blue-50" />
+        <MetricCard icon={BookOpen} value={walletLoading ? "..." : `${wallet?.total_courses ?? 0}`} label="Total Courses" bgColor="bg-blue-50" />
         <MetricCard
           icon={Banknote}
           value={walletLoading ? "..." : `₦${parseFloat(wallet?.total_earned ?? "0").toLocaleString()}`}
