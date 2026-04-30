@@ -50,7 +50,7 @@ function CardPayment({ onBack, onSuccess, course, price, courseId }: {
     }
 
     const popup = PaystackPop.setup({
-      key: 'pk_test_7c134f4a5a2adad045f5390fcf2a3e2e7cf1fcf8',
+      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY ?? 'pk_live_3676ce7ff60d90efabd65e59c06c9d1f4e0523ec',
       email,
       amount: Math.round(parseFloat(price ?? '0') * 100),
       currency: 'NGN',
