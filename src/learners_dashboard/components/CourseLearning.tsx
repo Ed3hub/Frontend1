@@ -110,26 +110,45 @@ export default function CourseLearning({ setActivePage, course, initialLessonId 
   }, [watchedSeconds]);
 
   useEffect(() => {
-    if (!course?.slug) { setLoading(false); return; }
-    Promise.all([
-      api.get(`/courses/${course.slug}/`),
-      api.get('/courses/my/enrollments/'),
-    ]).then(([courseRes, enrollRes]) => {
-      const data: CourseData = courseRes.data;
-      setCourseData(data);
-      const enr = enrollRes.data.find(
-        (e: { course: { slug: string }; lesson_progress: LessonProgress[] }) =>
-          e.course.slug === course.slug
-      );
-      if (enr?.lesson_progress) setProgress(enr.lesson_progress);
-      // auto-select initialLessonId if provided, otherwise first lesson
-      const target = initialLessonId
-        ? data.modules.flatMap((m: Module) => m.lessons).find((l: Lesson) => l.id === initialLessonId)
-        : data.modules?.[0]?.lessons?.[0];
-      if (target) selectLesson(target);
-    }).catch(() => {})
-      .finally(() => setLoading(false));
-  }, [course?.slug]);
+    if (!course?.slug && !course?.courseId) { setLoading(false); return; }
+
+    let cancelled = false;
+    const loadCourse = async () => {
+      setLoading(true);
+      try {
+        const enrollRes = await api.get('/courses/my/enrollments/');
+        const enr = enrollRes.data.find(
+          (e: { course: { id: number; slug: string }; lesson_progress: LessonProgress[] }) =>
+            course?.courseId ? e.course.id === course.courseId : e.course.slug === course?.slug
+        );
+        const enrolledCourseId = enr?.course?.id ?? course?.courseId;
+        const detailUrl = enrolledCourseId
+          ? `/courses/enrolled/${enrolledCourseId}/`
+          : `/courses/${course!.slug}/`;
+        const courseRes = await api.get(detailUrl);
+        if (cancelled) return;
+
+        const data: CourseData = courseRes.data;
+        setCourseData(data);
+        setProgress(enr?.lesson_progress ?? []);
+
+        const target = initialLessonId
+          ? data.modules.flatMap((m: Module) => m.lessons).find((l: Lesson) => l.id === initialLessonId)
+          : data.modules?.[0]?.lessons?.[0];
+        if (target) selectLesson(target);
+      } catch {
+        if (!cancelled) {
+          setCourseData(null);
+          setProgress([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadCourse();
+    return () => { cancelled = true; };
+  }, [course?.courseId, course?.slug, initialLessonId]);
 
   const selectLesson = (lesson: Lesson) => {
     setActiveLessonId(lesson.id);

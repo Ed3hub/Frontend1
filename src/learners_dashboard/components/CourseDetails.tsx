@@ -133,7 +133,7 @@ const CourseDetails = ({ setActivePage, course, setSelectedCourse, setSelectedLe
       }
     }).catch(() => {})
       .finally(() => setLoading(false));
-  }, [course?.slug]);
+  }, [course?.courseId, course?.slug]);
 
   const toggleModule = (idx: number) => {
     setExpandedModules((prev) =>
