@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Camera, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '@/lib/api';
+import ImageCropModal from '@/components/ImageCropModal';
 
 interface ProfileData {
   first_name: string;
@@ -24,6 +25,7 @@ const FIELD_CLASS = 'p-2.5 font-medium rounded-lg w-full border outline-none bor
 const LABEL_CLASS = 'text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 block';
 
 export default function Profile() {
+  const previewObjectUrlRef = useRef<string | null>(null);
   const [form, setForm] = useState<ProfileData>({
     first_name: '', last_name: '', email: '', username: '',
     bio: '', avatar: null, city_country: '', specialization: '',
@@ -32,6 +34,7 @@ export default function Profile() {
   });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [cropSourceFile, setCropSourceFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -42,6 +45,12 @@ export default function Profile() {
       setForm(res.data);
       setAvatarPreview(res.data.avatar ?? null);
     }).finally(() => setLoading(false));
+
+    return () => {
+      if (previewObjectUrlRef.current) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
+      }
+    };
   }, []);
 
   const set = (key: keyof ProfileData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -50,8 +59,25 @@ export default function Profile() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setStatus('error');
+      e.target.value = '';
+      return;
+    }
+    setCropSourceFile(file);
+    e.target.value = '';
+  };
+
+  const handleAvatarCrop = (file: File) => {
+    if (previewObjectUrlRef.current) {
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+    }
+    const previewUrl = URL.createObjectURL(file);
+    previewObjectUrlRef.current = previewUrl;
     setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
+    setAvatarPreview(previewUrl);
+    setCropSourceFile(null);
+    setStatus('idle');
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -204,6 +230,14 @@ export default function Profile() {
           </span>
         )}
       </div>
+
+      {cropSourceFile && (
+        <ImageCropModal
+          file={cropSourceFile}
+          onCancel={() => setCropSourceFile(null)}
+          onCrop={handleAvatarCrop}
+        />
+      )}
     </form>
   );
 }

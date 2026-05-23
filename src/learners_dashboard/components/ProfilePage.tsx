@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Camera, ArrowLeft, Check } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import ImageCropModal from '@/components/ImageCropModal';
 
 interface ProfilePageProps {
   setActivePage: (page: string) => void;
@@ -11,6 +12,7 @@ interface ProfilePageProps {
 const ProfilePage: React.FC<ProfilePageProps> = ({ setActivePage }) => {
   const { user, updateProfile } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewObjectUrlRef = useRef<string | null>(null);
 
   const [firstName, setFirstName] = useState(user?.first_name ?? '');
   const [lastName, setLastName] = useState(user?.last_name ?? '');
@@ -20,15 +22,41 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ setActivePage }) => {
   const [twitterX, setTwitterX] = useState(user?.twitter_x ?? '');
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(user?.avatar ?? null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [cropSourceFile, setCropSourceFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    return () => {
+      if (previewObjectUrlRef.current) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
+      }
+    };
+  }, []);
+
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file.');
+      e.target.value = '';
+      return;
+    }
+    setCropSourceFile(file);
+    e.target.value = '';
+  };
+
+  const handleAvatarCrop = (file: File) => {
+    if (previewObjectUrlRef.current) {
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+    }
+    const previewUrl = URL.createObjectURL(file);
+    previewObjectUrlRef.current = previewUrl;
     setAvatarFile(file);
-    setPreviewAvatar(URL.createObjectURL(file));
+    setPreviewAvatar(previewUrl);
+    setCropSourceFile(null);
+    setError('');
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -234,6 +262,14 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ setActivePage }) => {
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
+
+      {cropSourceFile && (
+        <ImageCropModal
+          file={cropSourceFile}
+          onCancel={() => setCropSourceFile(null)}
+          onCrop={handleAvatarCrop}
+        />
+      )}
     </div>
   );
 };
