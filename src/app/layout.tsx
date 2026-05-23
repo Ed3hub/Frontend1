@@ -7,7 +7,11 @@ import GoogleTranslateInit from "@/components/GoogleTranslateInit";
 export const metadata: Metadata = {
   title: "Ed3Hub",
   description: "Ed3Hub is a platform for Web3 community & courses.",
+  icons: {
+    icon: "/icon.png",
+  },
 };
+
 
 export default function RootLayout({
   children,
