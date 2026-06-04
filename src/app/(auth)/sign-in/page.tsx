@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/context/AuthContext";
+import { dashboardPathForRole, useAuth } from "@/context/AuthContext";
 import { useGoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,7 +28,7 @@ function SignInContent() {
 
   React.useEffect(() => {
     if (!loading && user) {
-      router.replace(user.role === "educator" ? "/dashboard" : "/learner-dashboard");
+      router.replace(dashboardPathForRole(user.role));
     }
   }, [user, loading, router]);
 
@@ -44,7 +44,7 @@ function SignInContent() {
           // New user on sign-in page — let them pick a role
           setShowRolePicker(true);
         } else {
-          router.push(role === "educator" ? "/dashboard" : "/learner-dashboard");
+          router.push(dashboardPathForRole(role));
         }
       } catch {
         setError("Google sign-in failed. Please try again.");
@@ -60,7 +60,7 @@ function SignInContent() {
     try {
       // Pass role only for new user registration — backend ignores it for existing users
       const { role } = await googleAuth(googleToken, googleRole);
-      router.push(role === "educator" ? "/dashboard" : "/learner-dashboard");
+      router.push(dashboardPathForRole(role));
     } catch {
       setError("Failed to complete sign-in. Please try again.");
       setShowRolePicker(false);
@@ -77,7 +77,7 @@ function SignInContent() {
     setSubmitting(true);
     try {
       const role = await login(username, password);
-      router.push(role === "educator" ? "/dashboard" : "/learner-dashboard");
+      router.push(dashboardPathForRole(role));
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string; unverified?: boolean; email?: string } } };
       const data = e.response?.data;

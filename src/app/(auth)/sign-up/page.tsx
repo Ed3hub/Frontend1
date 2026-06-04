@@ -3,7 +3,7 @@
 import RoleRadio from "@/components/RoleRadio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/context/AuthContext";
+import { dashboardPathForRole, useAuth } from "@/context/AuthContext";
 import { useGoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +19,7 @@ export default function SignUp() {
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [role, setRole] = React.useState("learner");
+  const [referralCode, setReferralCode] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
@@ -29,9 +30,14 @@ export default function SignUp() {
 
   React.useEffect(() => {
     if (!authLoading && user) {
-      router.replace(user.role === 'educator' ? '/dashboard' : '/learner-dashboard');
+      router.replace(dashboardPathForRole(user.role));
     }
   }, [user, authLoading, router]);
+
+  React.useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (ref) setReferralCode(ref.trim());
+  }, []);
 
   const handleGoogleSignUp = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -40,14 +46,14 @@ export default function SignUp() {
       // by attempting auth without a role — backend will return isNewUser
       setGoogleLoading(true);
       try {
-        const { role: finalRole, isNewUser } = await googleAuth(tokenResponse.access_token);
+        const { role: finalRole, isNewUser } = await googleAuth(tokenResponse.access_token, undefined, referralCode);
         if (isNewUser) {
           // New user — show role picker so they can choose
           setGoogleToken(tokenResponse.access_token);
           setShowRolePicker(true);
         } else {
           // Existing user — go straight to their dashboard, role cannot change
-          router.push(finalRole === 'educator' ? '/dashboard' : '/learner-dashboard');
+          router.push(dashboardPathForRole(finalRole));
         }
       } catch {
         setError('Google sign-up failed. Please try again.');
@@ -66,7 +72,7 @@ export default function SignUp() {
     if (password !== confirmPassword) { setError("Passwords do not match."); return; }
     setLoading(true);
     try {
-      await register(username, email, password, role);
+      await register(username, email, password, role, referralCode);
       router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: Record<string, string[]> } };
@@ -85,9 +91,9 @@ export default function SignUp() {
   const handleConfirmGoogleRole = async () => {
     setGoogleLoading(true);
     try {
-      const { role: finalRole, isNewUser } = await googleAuth(googleToken, googleRole);
+      const { role: finalRole } = await googleAuth(googleToken, googleRole, referralCode);
       // Role picker only matters for new users — existing users keep their original role
-      router.push(finalRole === 'educator' ? '/dashboard' : '/learner-dashboard');
+      router.push(dashboardPathForRole(finalRole));
     } catch {
       setError('Failed to complete sign-up. Please try again.');
       setShowRolePicker(false);
