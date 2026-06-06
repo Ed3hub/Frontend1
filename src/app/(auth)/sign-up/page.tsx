@@ -10,6 +10,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 
+const REFERRAL_STORAGE_KEY = "ed3hub_referral_code";
+
 export default function SignUp() {
   const router = useRouter();
   const { register, googleAuth, user, loading: authLoading } = useAuth();
@@ -36,32 +38,21 @@ export default function SignUp() {
 
   React.useEffect(() => {
     const ref = new URLSearchParams(window.location.search).get("ref");
-    if (ref) setReferralCode(ref.trim());
+    const storedRef = window.localStorage.getItem(REFERRAL_STORAGE_KEY);
+    const code = (ref || storedRef || "").trim();
+    if (code) {
+      setReferralCode(code);
+      window.localStorage.setItem(REFERRAL_STORAGE_KEY, code);
+    }
   }, []);
 
   const handleGoogleSignUp = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setError('');
-      // First check if this Google account already exists
-      // by attempting auth without a role — backend will return isNewUser
-      setGoogleLoading(true);
-      try {
-        const { role: finalRole, isNewUser } = await googleAuth(tokenResponse.access_token, undefined, referralCode);
-        if (isNewUser) {
-          // New user — show role picker so they can choose
-          setGoogleToken(tokenResponse.access_token);
-          setShowRolePicker(true);
-        } else {
-          // Existing user — go straight to their dashboard, role cannot change
-          router.push(dashboardPathForRole(finalRole));
-        }
-      } catch {
-        setError('Google sign-up failed. Please try again.');
-      } finally {
-        setGoogleLoading(false);
-      }
+    onSuccess: (tokenResponse) => {
+      setError("");
+      setGoogleToken(tokenResponse.access_token);
+      setShowRolePicker(true);
     },
-    onError: () => setError('Google sign-up failed. Please try again.'),
+    onError: () => setError("Google sign-up failed. Please try again."),
   });
 
   if (authLoading || user) return null;
@@ -69,10 +60,16 @@ export default function SignUp() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (password !== confirmPassword) { setError("Passwords do not match."); return; }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await register(username, email, password, role, referralCode);
+      const appliedReferralCode = referralCode.trim();
+      await register(username, email, password, role, appliedReferralCode);
+      window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
       router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: Record<string, string[]> } };
@@ -91,11 +88,12 @@ export default function SignUp() {
   const handleConfirmGoogleRole = async () => {
     setGoogleLoading(true);
     try {
-      const { role: finalRole } = await googleAuth(googleToken, googleRole, referralCode);
-      // Role picker only matters for new users — existing users keep their original role
+      const appliedReferralCode = referralCode.trim();
+      const { role: finalRole } = await googleAuth(googleToken, googleRole, appliedReferralCode);
+      window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
       router.push(dashboardPathForRole(finalRole));
     } catch {
-      setError('Failed to complete sign-up. Please try again.');
+      setError("Failed to complete sign-up. Please try again.");
       setShowRolePicker(false);
     } finally {
       setGoogleLoading(false);
@@ -113,16 +111,60 @@ export default function SignUp() {
       </div>
 
       <form className="w-2/3 space-y-4 py-5" onSubmit={handleSignUp}>
-        <Input type="text" placeholder="Username" label="Username" labelClassName="text-sm"
-          value={username} onChange={(e) => { setUsername(e.target.value); setError(""); }} />
-        <Input type="email" placeholder="Email" label="Email" labelClassName="text-sm"
-          value={email} onChange={(e) => { setEmail(e.target.value); setError(""); }} />
-        <Input type="password" placeholder="Password" label="Password" labelClassName="text-sm" togglePassword
-          value={password} onChange={(e) => { setPassword(e.target.value); setError(""); }} />
-        <Input type="password" placeholder="Confirm Password" label="Confirm Password" labelClassName="text-sm" togglePassword
-          value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setError(""); }} />
+        <Input
+          type="text"
+          placeholder="Username"
+          label="Username"
+          labelClassName="text-sm"
+          value={username}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            setError("");
+          }}
+        />
+        <Input
+          type="email"
+          placeholder="Email"
+          label="Email"
+          labelClassName="text-sm"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setError("");
+          }}
+        />
+        <Input
+          type="password"
+          placeholder="Password"
+          label="Password"
+          labelClassName="text-sm"
+          togglePassword
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setError("");
+          }}
+        />
+        <Input
+          type="password"
+          placeholder="Confirm Password"
+          label="Confirm Password"
+          labelClassName="text-sm"
+          togglePassword
+          value={confirmPassword}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            setError("");
+          }}
+        />
 
         <RoleRadio value={role} onChange={setRole} />
+
+        {referralCode && (
+          <p className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+            Referral code applied: <span className="font-semibold">{referralCode}</span>
+          </p>
+        )}
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
@@ -130,7 +172,9 @@ export default function SignUp() {
           <input type="checkbox" name="remember" id="remember" className="size-4" required />
           <label htmlFor="remember" className="text-sm">
             I agree to&nbsp;
-            <Link href="/terms-and-condition" className="text-primary">Terms and Conditions</Link>
+            <Link href="/terms-and-condition" className="text-primary">
+              Terms and Conditions
+            </Link>
           </label>
         </div>
 
@@ -152,11 +196,12 @@ export default function SignUp() {
       <div className="flex flex-col space-y-2 justify-center items-center">
         <p className="text-sm font-open-sans">
           Already have an account?{" "}
-          <Link href="/sign-in" className="text-primary">Sign In</Link>
+          <Link href="/sign-in" className="text-primary">
+            Sign In
+          </Link>
         </p>
       </div>
 
-      {/* ── Role picker overlay for new Google users ── */}
       {showRolePicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center gap-6">
@@ -172,25 +217,18 @@ export default function SignUp() {
                   key={r}
                   onClick={() => setGoogleRole(r)}
                   className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                    googleRole === r
-                      ? "border-primary bg-primary/5"
-                      : "border-gray-200 hover:border-gray-300"
+                    googleRole === r ? "border-primary bg-primary/5" : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
-                  <span className="text-2xl">{r === "learner" ? "🎓" : "📚"}</span>
                   <span className="text-sm font-semibold capitalize">{r}</span>
                   <span className="text-[11px] text-gray-400 text-center leading-tight">
-                    {r === "learner" ? "I want to learn new skills" : "I want to teach & create courses"}
+                    {r === "learner" ? "I want to learn new skills" : "I want to teach and create courses"}
                   </span>
                 </button>
               ))}
             </div>
 
-            <Button
-              className="w-full rounded-full py-5"
-              onClick={handleConfirmGoogleRole}
-              disabled={googleLoading}
-            >
+            <Button className="w-full rounded-full py-5" onClick={handleConfirmGoogleRole} disabled={googleLoading}>
               {googleLoading ? "Setting up your account..." : "Continue"}
             </Button>
           </div>
