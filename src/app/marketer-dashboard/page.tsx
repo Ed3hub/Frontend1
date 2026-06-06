@@ -45,6 +45,8 @@ interface MarketerDashboardData {
   transactions: TransactionRow[];
 }
 
+const AFFILIATE_SITE_URL = "https://ed3hub.com";
+
 function formatMoney(value: string) {
   return `₦${Number(value || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -56,6 +58,9 @@ function MarketerDashboardContent() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
   const [copied, setCopied] = React.useState(false);
+  const affiliateLink = data
+    ? `${AFFILIATE_SITE_URL}/sign-up?ref=${encodeURIComponent(data.referral_code)}`
+    : "";
 
   React.useEffect(() => {
     if (user && user.role !== "marketer") {
@@ -71,7 +76,7 @@ function MarketerDashboardContent() {
 
   const copyLink = async () => {
     if (!data) return;
-    await navigator.clipboard.writeText(data.affiliate_link);
+    await navigator.clipboard.writeText(affiliateLink);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   };
@@ -111,7 +116,7 @@ function MarketerDashboardContent() {
           <div className="flex flex-col gap-3 md:flex-row">
             <input
               readOnly
-              value={data.affiliate_link}
+              value={affiliateLink}
               className="min-w-0 flex-1 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm"
             />
             <Button className="gap-2 rounded-md" onClick={copyLink}>
