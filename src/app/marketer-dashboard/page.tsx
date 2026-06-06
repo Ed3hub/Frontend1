@@ -93,7 +93,7 @@ function MarketerDashboardContent() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
             <p className="text-sm text-slate-500">Marketer Dashboard</p>
-            <h1 className="text-2xl font-semibold">Affiliate performance</h1>
+            <h1 className="text-2xl font-semibold">Affiliate performance overview</h1>
           </div>
           <Button variant="outline" className="gap-2 rounded-md" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
