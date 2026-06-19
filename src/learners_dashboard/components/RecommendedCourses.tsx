@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Users, Search } from 'lucide-react';
 import api from '@/lib/api';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 
 interface Course {
   id: number;
@@ -42,6 +43,22 @@ export const RecommendedCourses: React.FC<RecommendedCoursesProps> = ({ setActiv
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    const query = search.trim();
+    if (!query) return;
+
+    const timer = window.setTimeout(() => {
+      trackAnalyticsEvent('search_used', {
+        metadata: {
+          query,
+          source: 'recommended_courses',
+        },
+      });
+    }, 600);
+
+    return () => window.clearTimeout(timer);
+  }, [search]);
 
   const filtered = courses.filter((c) => {
     const matchesSearch =

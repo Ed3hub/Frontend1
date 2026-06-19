@@ -6,6 +6,7 @@ import {
   Selection,
   Profile,
   MyCourses,
+  Analytics,
   UploadCourses,
   QuizAssessment,
   Community,
@@ -127,6 +128,7 @@ const Dashboard = () => {
         ) : (
           <>
             {selected === "My Courses" && <MyCourses onEdit={handleEditCourse} />}
+            {selected === "Analytics" && <Analytics />}
             {selected === "Upload courses" && <UploadCourses editCourse={editCourse} onSaved={handleCourseSaved} />}
             {selected === "Quiz and Assessment" && <QuizAssessmentManager />}
             {selected === "Community and Interaction" && <Community />}

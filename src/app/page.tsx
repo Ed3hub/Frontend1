@@ -5,12 +5,14 @@ import {
   WhyChooseUs,
   Footer,
 } from '@/landing/landingPage';
+import AnalyticsTracker from '@/components/AnalyticsTracker';
 
 /** * MAIN LANDING PAGE CONTAINER 
  */
 export default function Home() {
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-700">
+      <AnalyticsTracker eventType="landing_page_view" />
       <style>{`
         @keyframes bounce-slow {
           0%, 100% { transform: translateY(-5px); }

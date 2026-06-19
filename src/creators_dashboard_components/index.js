@@ -3,6 +3,7 @@ export { default as Header } from "./header/Header";
 export { default as Selection } from "./selection/Selection";
 export { default as Profile } from "./profile/Profile";
 export { default as MyCourses } from "./my_courses/MyCourses";
+export { default as Analytics } from "./analytics/Analytics";
 export { default as UploadCourses } from "./upload_courses/UploadCourses";
 export { default as QuizAssessment } from "./quiz_assessment/QuizAssessment";
 export { default as Community } from "./community/Community";
