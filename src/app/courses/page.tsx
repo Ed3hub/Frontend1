@@ -8,12 +8,6 @@ import { useRouter } from 'next/navigation';
 
 export default function CoursesPage() {
   const router = useRouter();
-  const [selectedCourse, setSelectedCourse] = useState<any>(null);
-
-  // When a course is clicked on the public page, redirect to sign-in
-  const handleAction = () => {
-    router.push('/sign-in');
-  };
 
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-700">
@@ -29,8 +23,10 @@ export default function CoursesPage() {
         </div>
         
         <RecommendedCourses 
-          setActivePage={handleAction} 
-          setSelectedCourse={setSelectedCourse} 
+          setActivePage={() => {}} 
+          setSelectedCourse={(course) => {
+            if (course.slug) router.push(`/course/${course.slug}`);
+          }} 
         />
       </main>
       <Footer />
