@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Star, BookOpen, Banknote, Eye, EyeOff, CheckCircle2, Loader2, X, RefreshCw, Clock } from "lucide-react";
+import { Star, BookOpen, Banknote, Eye, EyeOff, CheckCircle2, Loader2, X, RefreshCw, Clock, Coins } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -14,12 +14,25 @@ interface Transaction {
   created_at: string;
 }
 
+interface TokenTransaction {
+  id: number;
+  amount: number;
+  reason: string;
+  description: string;
+  created_at: string;
+  is_claimed: boolean;
+}
+
 interface WalletData {
   balance: string;
   total_earned: string;
   total_withdrawn: string;
   total_courses: number;
   total_students: number;
+  token_balance: number;
+  pending_token_balance: number;
+  total_token_earned: number;
+  token_transactions: TokenTransaction[];
   transactions: Transaction[];
 }
 
@@ -74,6 +87,8 @@ const Earnings = () => {
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [walletLoading, setWalletLoading] = useState(true);
+  const [tokenClaiming, setTokenClaiming] = useState<number | null>(null);
+  const [tokenError, setTokenError] = useState("");
 
   const fetchWallet = async () => {
     setWalletLoading(true);
@@ -99,6 +114,10 @@ const Earnings = () => {
   }, []);
 
   const balance = parseFloat(wallet?.balance ?? "0");
+  const tokenBalance = wallet?.token_balance ?? 0;
+  const pendingTokenBalance = wallet?.pending_token_balance ?? 0;
+  const totalTokenEarned = wallet?.total_token_earned ?? 0;
+  const tokenTransactions = wallet?.token_transactions ?? [];
 
   // Build chart from real credit transactions grouped by month
   const chartData = useMemo(() => {
@@ -148,6 +167,19 @@ const Earnings = () => {
     }
   };
 
+  const handleClaimToken = async (txId: number) => {
+    setTokenClaiming(txId);
+    setTokenError("");
+    try {
+      await api.post(`/courses/wallet/claim/${txId}/`);
+      await fetchWallet();
+    } catch {
+      setTokenError("Failed to claim token reward. Please try again.");
+    } finally {
+      setTokenClaiming(null);
+    }
+  };
+
   const resetWithdraw = () => {
     setShowWithdraw(false);
     setWithdrawSuccess(false);
@@ -167,7 +199,7 @@ const Earnings = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
         <MetricCard icon={Star} value={walletLoading ? "..." : `${wallet?.total_students ?? 0}`} label="Total Students" bgColor="bg-blue-50" />
         <MetricCard icon={BookOpen} value={walletLoading ? "..." : `${wallet?.total_courses ?? 0}`} label="Total Courses" bgColor="bg-blue-50" />
         <MetricCard
@@ -175,6 +207,12 @@ const Earnings = () => {
           value={walletLoading ? "..." : `₦${parseFloat(wallet?.total_earned ?? "0").toLocaleString()}`}
           label="Total Earned (60% share)"
           bgColor="bg-green-50"
+        />
+        <MetricCard
+          icon={Coins}
+          value={walletLoading ? "..." : totalTokenEarned.toLocaleString()}
+          label="Creator Tokens Earned"
+          bgColor="bg-yellow-50"
         />
       </div>
 
@@ -196,6 +234,60 @@ const Earnings = () => {
           </p>
           <p className="text-sm text-gray-500 mt-1">Total withdrawn</p>
         </div>
+      </div>
+
+      <div className="bg-yellow-50 border border-yellow-100 rounded-2xl p-6 mb-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Coins className="text-yellow-500" size={20} />
+              <p className="text-sm font-semibold text-gray-800">Creator Token Rewards</p>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Earned when learners complete your courses.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 min-w-[240px]">
+            <div className="bg-white/70 rounded-xl p-3 border border-yellow-100">
+              <p className="text-xs text-gray-500">Claimed balance</p>
+              <p className="text-xl font-bold text-gray-900">{walletLoading ? "..." : tokenBalance.toLocaleString()}</p>
+            </div>
+            <div className="bg-white/70 rounded-xl p-3 border border-yellow-100">
+              <p className="text-xs text-gray-500">Pending claim</p>
+              <p className="text-xl font-bold text-yellow-700">{walletLoading ? "..." : pendingTokenBalance.toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+
+        {tokenError && <p className="text-red-500 text-sm mt-4">{tokenError}</p>}
+
+        {tokenTransactions.length > 0 ? (
+          <div className="mt-5 space-y-2">
+            {tokenTransactions.slice(0, 5).map((tx) => (
+              <div key={tx.id} className="flex flex-col gap-3 rounded-xl bg-white/80 border border-yellow-100 p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">{tx.description}</p>
+                  <p className="text-xs text-gray-400">
+                    +{tx.amount} tokens - {new Date(tx.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                {tx.is_claimed ? (
+                  <span className="text-xs font-semibold text-green-700 bg-green-100 px-3 py-1.5 rounded-full self-start sm:self-auto">
+                    Claimed
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleClaimToken(tx.id)}
+                    disabled={tokenClaiming === tx.id}
+                    className="px-4 py-2 rounded-xl text-xs font-bold bg-yellow-500 text-white hover:bg-yellow-600 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 self-start sm:self-auto"
+                  >
+                    {tokenClaiming === tx.id ? <><Loader2 size={14} className="animate-spin" /> Claiming...</> : "Claim Tokens"}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400 mt-5">No creator token rewards yet.</p>
+        )}
       </div>
 
       <div className="bg-white rounded-3xl p-10 shadow-sm border border-gray-50">
@@ -255,7 +347,7 @@ const Earnings = () => {
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#9ca3af", fontSize: 12 }} dy={15} />
               <YAxis hide domain={["dataMin - 500", "dataMax + 500"]} />
               <Tooltip cursor={false} contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
-                formatter={(v: number) => [`₦${v.toLocaleString()}`, "Earnings"]} />
+                formatter={(v?: number) => [`₦${(v ?? 0).toLocaleString()}`, "Earnings"]} />
               <Area type="monotone" dataKey="value" stroke="#00A3FF" strokeWidth={4} fillOpacity={1} fill="url(#colorValue)"
                 activeDot={{ r: 8, fill: "#00A3FF", stroke: "#fff", strokeWidth: 3 }} />
             </AreaChart>
