@@ -54,7 +54,7 @@ const Pricing = () => {
         "One-time or subscription payment required",
         "Full access to premium content and resources",
         "Standard or on-chain certificate-included",
-        "Detailed learner analytics and progress tracking",
+        "Detailed learner progress tracking",
         "Access to live Q&A sessions and mentoring",
         "Built for professionals and structured learning",
         "Responsive support and help center access",

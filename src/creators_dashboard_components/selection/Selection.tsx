@@ -66,20 +66,6 @@ const Selection: React.FC<SelectionProps> = ({ selected, setSelected, activeTab 
             </span>
             <p className="hidden md:block text-xs md:text-[13px]">Upload Course</p>
           </div>
-          {/* Analytics */}
-          <div
-            className={`flex items-center justify-center md:justify-start ${
-              selected === "Analytics" ? "text-[#007ED7]" : "text-[#5a5a5a]"
-            } w-12 h-12 md:w-auto md:h-auto gap-3 md:gap-4 cursor-pointer font-medium p-2 md:p-0 rounded-md transition-colors border md:border-0`}
-            onClick={() => handleOptionClick("Analytics")}
-          >
-            <span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 19V5m0 14h16M8 16v-5m4 5V8m4 8v-3" />
-              </svg>
-            </span>
-            <p className="hidden md:block text-xs md:text-[13px]">Analytics</p>
-          </div>
           {/* Below is the Quiz and Assessment selection */}
           <div
             className={`flex items-center justify-center md:justify-start ${
