@@ -2,8 +2,13 @@ import {
   Navbar,
   Hero,
   TrendingCourses,
-  WhyChooseUs,
   Footer,
+  OnboardingPath,
+  HowItWorks,
+  CommunitySection,
+  EducatorSection,
+  CourseWalkthrough,
+  CTASection,
 } from '@/landing/landingPage';
 
 /** * MAIN LANDING PAGE CONTAINER 
@@ -24,7 +29,12 @@ export default function Home() {
       <main>
         <Hero />
         <TrendingCourses />
-        <WhyChooseUs />
+        <OnboardingPath />
+        <HowItWorks />
+        <CommunitySection />
+        <EducatorSection />
+        <CourseWalkthrough />
+        <CTASection />
       </main>
       <Footer />
     </div>
